@@ -1,25 +1,43 @@
 package com.cleawing.ignite.akka
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem => AkkaActorSystem}
+import com.typesafe.config.Config
+import org.apache.ignite.IgniteException
 import org.apache.ignite.services.{ServiceContext, Service}
 
 import scala.collection.mutable.HashMap
+import java.util.concurrent.{ CountDownLatch => CDL }
 
-trait ActorSystemService {
-  def apply(name: String) : ActorSystem
-}
+import scala.concurrent.ExecutionContext
+
+import com.cleawing.ignite._
+
+trait ActorSystemService extends IgniteService
 
 object ActorSystemService {
-  def apply() : ActorSystemServiceImpl = new ActorSystemServiceImpl()
+  val name = "actorServices"
+
+  def deploy() : Unit = {
+    services.deployNodeSingleton(name, new ActorSystemServiceImpl)
+  }
+
+  def stop(): Unit = {
+    services.cancel(name)
+  }
 }
 
 class ActorSystemServiceImpl
   extends Service with ActorSystemService {
 
-  protected val systems = HashMap.empty[String, ActorSystem]
+  protected var name: String = ""
+  protected var isDeployed: Boolean = false
+  protected var inCancel: Boolean = false
+  protected val systems = HashMap.empty[String, AkkaActorSystem]
 
+  // Check capability of subscription to Ignite events and maintain deployed state
   override def init(ctx: ServiceContext) : Unit = {
-
+    isDeployed = true
+    name = ctx.name
   }
 
   override def execute(ctx: ServiceContext) : Unit = {
@@ -27,20 +45,29 @@ class ActorSystemServiceImpl
   }
 
   override def cancel(ctx: ServiceContext) : Unit = {
-    systems.values.foreach(_.terminate())
-  }
-
-  def apply(name: String) : ActorSystem = obtainActorSystem(name)
-
-  private def obtainActorSystem(name: String) : ActorSystem = {
-    systems.get(name) match {
-      case Some(system) => system
-      case None => Some(systems.getOrElseUpdate(name, ActorSystem(name)))
-        .map { system =>
-        system.registerOnTermination { systems.remove(name) }
-        system
-      }.get
+    inCancel = true
+    val latch = new CDL(systems.size)
+    systems.values.foreach { system =>
+      system.terminate()
+      latch.countDown()
     }
+    latch.await()
+    isDeployed = false
   }
+  
+  def apply(name: String, config: Option[Config] = None, classLoader: Option[ClassLoader] = None, defaultExecutionContext: Option[ExecutionContext] = None): AkkaActorSystem = {
+    (isDeployed, inCancel) match {
+      case (false, _) => throw new IgniteException(s"Service '${this.name}' has not deployed!")
+      case (_, true) => throw new IgniteException(s"Service '${this.name}' is shutting down!")
+      case _ =>
+    }
 
+    systems.getOrElse(name, {
+      val system = systems.getOrElseUpdate(name, AkkaActorSystem(name, config, classLoader, defaultExecutionContext))
+      system.registerOnTermination {
+        systems.remove(name)
+      }
+      system
+    })
+  }
 }
