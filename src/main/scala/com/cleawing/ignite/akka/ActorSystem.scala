@@ -19,9 +19,11 @@ object ActorSystem {
   def apply(name: String, config: Config): AkkaActorSystem = apply(name, Option(config), None, None)
   def apply(name: String, config: Config, classLoader: ClassLoader): AkkaActorSystem = apply(name, Option(config), Option(classLoader), None)
   def apply(name: String, config: Option[Config] = None, classLoader: Option[ClassLoader] = None, defaultExecutionContext: Option[ExecutionContext] = None): AkkaActorSystem = {
-    if (actorSystemService == null) {
-      ActorSystemService.deploy()
-    }
+    if (actorSystemService == null) deploy()
     actorSystemService(name, config, classLoader, defaultExecutionContext)
   }
+
+  def deploy() : Unit = ActorSystemService.deploy()
+  def terminateAll() : Unit = if (actorSystemService != null) actorSystemService.terminateAll()
+  def undeploy() : Unit = ActorSystemService.undeploy()
 }
