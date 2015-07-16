@@ -29,13 +29,9 @@
         http://www.springframework.org/schema/util
         http://www.springframework.org/schema/util/spring-util.xsd">
     <bean id="ignite.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
-        <property name="lifecycleBeans">
-            <list>
-                <bean class="com.cleawing.ignite.akka.IgniteLifecycleBean"/>
-            </list>
-        </property>
         <!-- Set to true to enable distributed class loading for examples, default is false. -->
         <property name="peerClassLoadingEnabled" value="true"/>
+        <!--<property name="deploymentMode" value="CONTINUOUS"/>-->
 
         <property name="marshaller">
             <bean class="org.apache.ignite.marshaller.optimized.OptimizedMarshaller">
@@ -47,13 +43,12 @@
         <!-- Enable task execution events for examples. -->
         <property name="includeEventTypes">
             <list>
-                <!--Deployments-->
-                <util:constant static-field="org.apache.ignite.events.EventType.EVT_CLASS_DEPLOYED"/>
-                <util:constant static-field="org.apache.ignite.events.EventType.EVT_CLASS_UNDEPLOYED"/>
-                <util:constant static-field="org.apache.ignite.events.EventType.EVT_CLASS_DEPLOY_FAILED"/>
-                <util:constant static-field="org.apache.ignite.events.EventType.EVT_TASK_DEPLOYED"/>
-                <util:constant static-field="org.apache.ignite.events.EventType.EVT_TASK_UNDEPLOYED"/>
-                <util:constant static-field="org.apache.ignite.events.EventType.EVT_TASK_DEPLOY_FAILED"/>
+                <!--Discovery events-->
+                <util:constant static-field="org.apache.ignite.events.EventType.EVT_NODE_JOINED"/>
+                <util:constant static-field="org.apache.ignite.events.EventType.EVT_NODE_FAILED"/>
+                <util:constant static-field="org.apache.ignite.events.EventType.EVT_NODE_LEFT"/>
+                <util:constant static-field="org.apache.ignite.events.EventType.EVT_CLIENT_NODE_DISCONNECTED"/>
+                <util:constant static-field="org.apache.ignite.events.EventType.EVT_CLIENT_NODE_RECONNECTED"/>
 
                 <!--Task execution events-->
                 <util:constant static-field="org.apache.ignite.events.EventType.EVT_TASK_STARTED"/>
