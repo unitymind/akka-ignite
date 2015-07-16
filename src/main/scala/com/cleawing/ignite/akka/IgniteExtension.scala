@@ -6,7 +6,7 @@ import akka.actor._
 import com.cleawing.ignite.NullableField
 import org.apache.ignite.cache.affinity.Affinity
 import org.apache.ignite.cluster.ClusterGroup
-import org.apache.ignite.configuration.{CollectionConfiguration, NearCacheConfiguration, IgniteConfiguration, CacheConfiguration}
+import org.apache.ignite.configuration._
 import org.apache.ignite.internal.IgnitionEx
 import org.apache.ignite._
 import org.apache.ignite.lang.IgniteProductVersion
@@ -21,8 +21,7 @@ object IgniteExtension
   override def get(system: ActorSystem): IgniteExtensionImpl = super.get(system)
 }
 
-private[ignite] class IgniteExtensionImpl(val system: ExtendedActorSystem)
-  extends Extension {
+private[ignite] class IgniteExtensionImpl(val system: ExtendedActorSystem) extends Extension {
   import scala.collection.JavaConversions.iterableAsScalaIterable
 
   init()
@@ -46,6 +45,9 @@ private[ignite] class IgniteExtensionImpl(val system: ExtendedActorSystem)
 
   object cache {
     def config[K, V] : CacheConfiguration[K, V] = new CacheConfiguration()
+    def config[K, V](name: String) : CacheConfiguration[K, V] = new CacheConfiguration(name)
+    def config[K, V](cfg: CacheConfiguration[K, V]) : CacheConfiguration[K, V] = new CacheConfiguration(cfg)
+    def configNear[K, V] : NearCacheConfiguration[K, V] = new NearCacheConfiguration()
     def addConfig[K, V](cacheCfg: CacheConfiguration[K, V]) = ignite().addCacheConfiguration(cacheCfg)
     def create[K, V](cacheCfg: CacheConfiguration[K, V]) : IgniteCache[K, V] = ignite().createCache(cacheCfg)
     def create[K, V](cacheCfg: CacheConfiguration[K, V], nearCfg: NearCacheConfiguration[K, V]) : IgniteCache[K, V] = {
@@ -67,10 +69,21 @@ private[ignite] class IgniteExtensionImpl(val system: ExtendedActorSystem)
     def apply[K, V](@NullableField name: String) : IgniteCache[K, V] = ignite().cache(name)
   }
 
-  def transactions() : IgniteTransactions = ignite().transactions()
+  object transactions {
+    def apply() : IgniteTransactions = ignite().transactions()
+    def config() : TransactionConfiguration = new TransactionConfiguration()
+    def config(cfg: TransactionConfiguration) : TransactionConfiguration = new TransactionConfiguration(cfg)
+  }
+
   def dataStreamer[K, V](@NullableField cacheName: String) : IgniteDataStreamer[K, V] = ignite().dataStreamer(cacheName)
-  def fileSystem(name: String) : IgniteFileSystem = ignite().fileSystem(name)
-  def fileSystems() : Iterable[IgniteFileSystem] = ignite().fileSystems()
+
+  object IGFS {
+    def apply() : Iterable[IgniteFileSystem] = ignite().fileSystems()
+    def apply(name: String) : IgniteFileSystem = ignite().fileSystem(name)
+    def config() : FileSystemConfiguration = new FileSystemConfiguration()
+    def config(cfg: FileSystemConfiguration) = new FileSystemConfiguration(cfg)
+  }
+
   def atomicSequence(name: String, initVal: Long, create: Boolean) : IgniteAtomicSequence = ignite().atomicSequence(name, initVal, create)
   def atomicLong(name: String, initVal: Long, create: Boolean) : IgniteAtomicLong = ignite().atomicLong(name, initVal, create)
   def atomicReference[T](name: String, @NullableField initVal: T, create: Boolean) : IgniteAtomicReference[T] = {
@@ -92,6 +105,7 @@ private[ignite] class IgniteExtensionImpl(val system: ExtendedActorSystem)
   private def init() : Unit = {
     start(system.name)
     system.registerOnTermination(stop(system.name))
+    
   }
 
   // TODO. Implement idiomatic TypeSafe akka config (and do not depend on Spring Beans)
@@ -100,6 +114,6 @@ private[ignite] class IgniteExtensionImpl(val system: ExtendedActorSystem)
   }
 
   private def stop(name: String): Unit = {
-    Ignition.stop(name, false)
+    Ignition.stop(name, true)
   }
 }
