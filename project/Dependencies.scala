@@ -14,10 +14,12 @@ object Dependencies {
   lazy val scalaz               = "org.scalaz"        %%  "scalaz-core"       % Versions.scalaz
   lazy val ignite = Seq(
                                   "org.apache.ignite" %   "ignite-core"       % Versions.ignite,
+                                  "org.apache.ignite" %   "ignite-scalar"     % Versions.ignite,
                                   "org.apache.ignite" %   "ignite-spring"     % Versions.ignite
   )
   lazy val akka = Seq(
                                   "com.typesafe.akka" %%  "akka-actor"        % Versions.akka,
+                                  "com.typesafe.akka" %%  "akka-contrib"      % Versions.akka,
                                   "com.typesafe.akka" %%  "akka-testkit"      % Versions.akka % "test"
   )
 

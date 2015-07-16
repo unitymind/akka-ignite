@@ -36,7 +36,7 @@ private[ignite] trait ExtensionAdapter {
   def scheduler() : IgniteScheduler = ignite().scheduler()
 
   object Cache {
-    def config[K, V] : CacheConfiguration[K, V] = new CacheConfiguration()
+    def config[K, V]() : CacheConfiguration[K, V] = new CacheConfiguration()
     def config[K, V](name: String) : CacheConfiguration[K, V] = new CacheConfiguration(name)
     def config[K, V](cfg: CacheConfiguration[K, V]) : CacheConfiguration[K, V] = new CacheConfiguration(cfg)
     def configNear[K, V] : NearCacheConfiguration[K, V] = new NearCacheConfiguration()
