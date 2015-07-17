@@ -13,8 +13,6 @@ import org.apache.ignite.lang.IgniteProductVersion
 import org.apache.ignite.lifecycle.{LifecycleEventType, LifecycleBean}
 import org.apache.ignite.plugin.IgnitePlugin
 
-import scala.concurrent.Future
-
 
 private[ignite] trait ExtensionAdapter {
   import com.cleawing.ignite._
@@ -98,6 +96,7 @@ private[ignite] trait ExtensionAdapter {
   def set[T](name: String, @NullableField cfg : CollectionConfiguration) : IgniteSet[T] = ignite().set(name, cfg)
   def plugin[T <: IgnitePlugin](name: String) : T = ignite().plugin(name)
   def affinity[K](cacheName: String) : Affinity[K] = ignite().affinity(cacheName)
+  def state() : IgniteState = Ignition.state(system.name)
 
   private def ignite() : Ignite = Ignition.ignite(system.name)
 
