@@ -1,7 +1,8 @@
-package com.cleawing.ignite.akka
+package com.cleawing.ignite.playground
 
-import akka.actor.{Props, FSM}
+import akka.actor.{FSM, Props}
 import com.cleawing.ignite.akka.Streaming._
+import com.cleawing.ignite.akka.{Ignition, Streaming}
 
 class DataStreamerFSM[K, V](name: String) extends FSM[State, Data]
   with Ignition with Streaming {
