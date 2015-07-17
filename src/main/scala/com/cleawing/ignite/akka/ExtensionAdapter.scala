@@ -2,14 +2,18 @@ package com.cleawing.ignite.akka
 
 import java.util.concurrent.ExecutorService
 
-import _root_.akka.actor.ExtendedActorSystem
+import akka.actor.{ActorRef, ExtendedActorSystem}
+import com.cleawing.ignite.akka.LocalNodeWatcher.Restart
 import org.apache.ignite.cache.affinity.Affinity
 import org.apache.ignite.cluster.ClusterGroup
 import org.apache.ignite._
 import org.apache.ignite.configuration._
 import org.apache.ignite.internal.IgnitionEx
 import org.apache.ignite.lang.IgniteProductVersion
+import org.apache.ignite.lifecycle.{LifecycleEventType, LifecycleBean}
 import org.apache.ignite.plugin.IgnitePlugin
+
+import scala.concurrent.Future
 
 
 private[ignite] trait ExtensionAdapter {
@@ -95,21 +99,33 @@ private[ignite] trait ExtensionAdapter {
   def plugin[T <: IgnitePlugin](name: String) : T = ignite().plugin(name)
   def affinity[K](cacheName: String) : Affinity[K] = ignite().affinity(cacheName)
 
+  private def ignite() : Ignite = Ignition.ignite(system.name)
 
-  protected def init() : Unit = {
-    start(system.name)
+  protected[ignite] def init() : Unit = {
+    start(system.actorOf(LocalNodeWatcher()))
     system.registerOnTermination(stop(system.name))
   }
 
-  private def ignite() : Ignite = Ignition.ignite(system.name)
-
   // TODO. Implement idiomatic TypeSafe akka config (and do not depend on Spring Beans)
-  private def start(name: String) : Unit = {
-    IgnitionEx.start(getClass.getResourceAsStream("/reference_ignite.xml"), name, null)
+  protected[ignite] def start(monitor: ActorRef) : Unit = {
+    val config = IgnitionEx.loadConfigurations(getClass.getResourceAsStream("/reference_ignite.xml"))
+      .get1().toArray.apply(0).asInstanceOf[IgniteConfiguration]
+    config.setGridName(system.name)
+    config.setLifecycleBeans(lifeCycleBean(monitor))
+    IgnitionEx.start(config)
   }
 
   private def stop(name: String): Unit = {
     Ignition.stop(name, true)
+  }
+
+  def lifeCycleBean(monitor: ActorRef) = new LifecycleBean {
+    override def onLifecycleEvent(evt: LifecycleEventType): Unit = {
+      evt match {
+        case LifecycleEventType.AFTER_NODE_STOP => monitor ! Restart
+        case _ => // ignore others
+      }
+    }
   }
 }
 

@@ -1,0 +1,1 @@
+scalacOptions ++= Seq("-unchecked", "-feature", "-deprecation", "-language:postfixOps")

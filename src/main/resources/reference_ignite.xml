@@ -87,5 +87,22 @@
                 </property>
             </bean>
         </property>
+
+        <property name="cacheConfiguration">
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                <!-- Always store cache entries in off-heap memory. -->
+                <property name="memoryMode" value="OFFHEAP_TIERED"/>
+                <!-- Enable Off-Heap memory with max size of 1 Gigabytes (0 for unlimited). -->
+                <property name="offHeapMaxMemory" value="2147483648"/>
+
+                <!-- Configure eviction policy. -->
+                <!--<property name="evictionPolicy">-->
+                    <!--<bean class="org.apache.ignite.cache.eviction.fifo.FifoEvictionPolicy">-->
+                        <!--&lt;!&ndash; Evict to off-heap after cache size reaches maxSize. &ndash;&gt;-->
+                        <!--<property name="maxSize" value="50000"/>-->
+                    <!--</bean>-->
+                <!--</property>-->
+            </bean>
+        </property>
     </bean>
 </beans>
