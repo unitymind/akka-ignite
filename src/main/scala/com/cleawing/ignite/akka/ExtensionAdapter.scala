@@ -2,7 +2,7 @@ package com.cleawing.ignite.akka
 
 import java.util.concurrent.ExecutorService
 
-import akka.actor.{ActorRef, ExtendedActorSystem}
+import akka.actor.{Props, ActorRef, ExtendedActorSystem}
 import com.cleawing.ignite.akka.LocalNodeWatcher.Restart
 import org.apache.ignite.cache.affinity.Affinity
 import org.apache.ignite.cluster.ClusterGroup
@@ -20,6 +20,9 @@ import scala.concurrent.duration.Duration
 private[ignite] trait ExtensionAdapter {
   import com.cleawing.ignite._
   import scala.collection.JavaConversions.iterableAsScalaIterable
+
+  import org.apache.ignite.cache.CacheMode
+  import org.apache.ignite.cache.CacheWriteSynchronizationMode
 
   def system: ExtendedActorSystem
 
@@ -110,9 +113,21 @@ private[ignite] trait ExtensionAdapter {
 
   private def ignite() : Ignite = Ignition.ignite(system.name)
 
+  private val propsCacheCfg : CacheConfiguration[String, Props] = {
+    val cfg = Cache.config[String, Props](IgniteExtension.PropsCacheName)
+    cfg.setCacheMode(CacheMode.REPLICATED)
+      .setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_SYNC)
+    cfg
+  }
+
   protected[ignite] def init() : Unit = {
     start(system.actorOf(LocalNodeWatcher()))
-    system.registerOnTermination(stop(system.name))
+    IgniteExtension.systems.put(system.name, system)
+    Cache.getOrCreate(propsCacheCfg)
+    system.registerOnTermination {
+      stop(system.name)
+      IgniteExtension.systems.remove(system.name)
+    }
   }
 
   // TODO. Implement idiomatic TypeSafe akka config (and do not depend on Spring Beans)

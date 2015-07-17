@@ -13,7 +13,7 @@ object Build extends MechaRepoBuild {
       ++ Seq(Dependencies.typesafeConfig, Dependencies.scalaz, Dependencies.scalazScalaTest, Dependencies.scalaTest),
     initialCommands in console :=
       """
-        |import akka.actor.ActorSystem
+        |import akka.actor._
         |import com.cleawing.ignite.akka.IgniteExtension
         |import scala.collection.JavaConversions._
         |
