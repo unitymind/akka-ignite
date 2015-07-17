@@ -13,6 +13,9 @@ import org.apache.ignite.lang.IgniteProductVersion
 import org.apache.ignite.lifecycle.{LifecycleEventType, LifecycleBean}
 import org.apache.ignite.plugin.IgnitePlugin
 
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+
 
 private[ignite] trait ExtensionAdapter {
   import com.cleawing.ignite._
@@ -38,16 +41,14 @@ private[ignite] trait ExtensionAdapter {
   def scheduler() : IgniteScheduler = ignite().scheduler()
 
   object Cache {
-    def config[K, V]() : CacheConfiguration[K, V] = new CacheConfiguration()
-    def config[K, V](name: String) : CacheConfiguration[K, V] = new CacheConfiguration(name)
-    def config[K, V](cfg: CacheConfiguration[K, V]) : CacheConfiguration[K, V] = new CacheConfiguration(cfg)
-    def configNear[K, V] : NearCacheConfiguration[K, V] = new NearCacheConfiguration()
-    def addConfig[K, V](cacheCfg: CacheConfiguration[K, V]) = ignite().addCacheConfiguration(cacheCfg)
-    def create[K, V](cacheCfg: CacheConfiguration[K, V]) : IgniteCache[K, V] = ignite().createCache(cacheCfg)
-    def create[K, V](cacheCfg: CacheConfiguration[K, V], nearCfg: NearCacheConfiguration[K, V]) : IgniteCache[K, V] = {
-      ignite().createCache(cacheCfg, nearCfg)
+    object config {
+      def apply[K, V]() : CacheConfiguration[K, V] = new CacheConfiguration()
+      def apply[K, V](name: String) : CacheConfiguration[K, V] = new CacheConfiguration(name)
+      def apply[K, V](cfg: CacheConfiguration[K, V]) : CacheConfiguration[K, V] = new CacheConfiguration(cfg)
+      def near[K, V] : NearCacheConfiguration[K, V] = new NearCacheConfiguration()
+      def add[K, V](cacheCfg: CacheConfiguration[K, V]) = ignite().addCacheConfiguration(cacheCfg)
     }
-    def create[K, V](cacheName: String) : IgniteCache[K, V] = ignite().createCache[K, V](cacheName)
+
     def getOrCreate[K, V](cacheCfg: CacheConfiguration[K, V]) : IgniteCache[K, V] = ignite().getOrCreateCache(cacheCfg)
     def getOrCreate[K, V](cacheCfg: CacheConfiguration[K, V], nearCfg: NearCacheConfiguration[K, V]) : IgniteCache[K, V] = {
       ignite().getOrCreateCache(cacheCfg, nearCfg)
@@ -60,7 +61,12 @@ private[ignite] trait ExtensionAdapter {
       ignite().createNearCache(cacheName, nearCfg)
     }
     def destroy(cacheName: String) : Unit = ignite().destroyCache(cacheName)
-    def apply[K, V](@NullableField name: String) : IgniteCache[K, V] = ignite().cache(name)
+
+    def apply[K, V](@NullableField cacheName: String) : IgniteCache[K, V] = ignite().createCache[K, V](cacheName)
+    def apply[K, V](cacheCfg: CacheConfiguration[K, V]) : IgniteCache[K, V] = ignite().createCache(cacheCfg)
+    def apply[K, V](cacheCfg: CacheConfiguration[K, V], nearCfg: NearCacheConfiguration[K, V]) : IgniteCache[K, V] = {
+      ignite().createCache(cacheCfg, nearCfg)
+    }
   }
 
   object Transactions {
@@ -97,6 +103,10 @@ private[ignite] trait ExtensionAdapter {
   def plugin[T <: IgnitePlugin](name: String) : T = ignite().plugin(name)
   def affinity[K](cacheName: String) : Affinity[K] = ignite().affinity(cacheName)
   def state() : IgniteState = Ignition.state(system.name)
+
+  def terminate() : Unit = {
+    Await.ready(system.terminate(), Duration.Inf)
+  }
 
   private def ignite() : Ignite = Ignition.ignite(system.name)
 

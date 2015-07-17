@@ -5,7 +5,7 @@ import com.cleawing.ignite.akka.LocalNodeWatcher.Restart
 import org.apache.ignite.IgniteState
 import scala.concurrent.duration._
 
-class LocalNodeWatcher extends Actor {
+private[ignite] class LocalNodeWatcher extends Actor {
   import context.dispatcher
 
   def receive = {
@@ -17,7 +17,7 @@ class LocalNodeWatcher extends Actor {
   }
 }
 
-object LocalNodeWatcher {
+private[ignite] object LocalNodeWatcher {
   def apply() : Props = Props[LocalNodeWatcher]
   case object Restart
 }
