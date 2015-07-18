@@ -2,15 +2,16 @@ package com.cleawing.ignite.akka
 
 import java.util.concurrent.ExecutorService
 
-import akka.actor.{Props, ActorRef, ExtendedActorSystem}
-import com.cleawing.ignite.akka.LocalNodeWatcher.Restart
+import akka.actor.{ActorRef, ExtendedActorSystem}
+import com.cleawing.ignite.plugins.GridNameValidationPluginConfiguration
+
+import org.apache.ignite._
 import org.apache.ignite.cache.affinity.Affinity
 import org.apache.ignite.cluster.ClusterGroup
-import org.apache.ignite._
 import org.apache.ignite.configuration._
 import org.apache.ignite.internal.IgnitionEx
 import org.apache.ignite.lang.IgniteProductVersion
-import org.apache.ignite.lifecycle.{LifecycleEventType, LifecycleBean}
+import org.apache.ignite.lifecycle.{LifecycleBean, LifecycleEventType}
 import org.apache.ignite.plugin.IgnitePlugin
 
 import scala.concurrent.Await
@@ -18,13 +19,11 @@ import scala.concurrent.duration.Duration
 
 
 private[ignite] trait ExtensionAdapter {
-  import com.cleawing.ignite._
-  import scala.collection.JavaConversions.iterableAsScalaIterable
+  import scala.collection.JavaConversions._
+  import com.cleawing.ignite.NullableField
+  import com.cleawing.ignite.akka.LocalNodeWatcher.Restart
 
-  import org.apache.ignite.cache.CacheMode
-  import org.apache.ignite.cache.CacheWriteSynchronizationMode
-
-  def system: ExtendedActorSystem
+  protected def system: ExtendedActorSystem
 
   def name : String = ignite().name()
   def log() : IgniteLogger = ignite().log()
@@ -65,26 +64,21 @@ private[ignite] trait ExtensionAdapter {
     }
     def destroy(cacheName: String) : Unit = ignite().destroyCache(cacheName)
 
-    def apply[K, V](@NullableField cacheName: String) : IgniteCache[K, V] = ignite().createCache[K, V](cacheName)
+    def apply[K, V](@NullableField cacheName: String) : IgniteCache[K, V] = ignite().cache[K, V](cacheName)
     def apply[K, V](cacheCfg: CacheConfiguration[K, V]) : IgniteCache[K, V] = ignite().createCache(cacheCfg)
     def apply[K, V](cacheCfg: CacheConfiguration[K, V], nearCfg: NearCacheConfiguration[K, V]) : IgniteCache[K, V] = {
       ignite().createCache(cacheCfg, nearCfg)
     }
   }
 
-  object Transactions {
-    def apply() : IgniteTransactions = ignite().transactions()
-    def config() : TransactionConfiguration = new TransactionConfiguration()
-    def config(cfg: TransactionConfiguration) : TransactionConfiguration = new TransactionConfiguration(cfg)
-  }
-
+  def transactions() : IgniteTransactions = ignite().transactions()
   def dataStreamer[K, V](@NullableField cacheName: String) : IgniteDataStreamer[K, V] = ignite().dataStreamer(cacheName)
 
   object IGFS {
-    def apply() : Iterable[IgniteFileSystem] = ignite().fileSystems()
-    def apply(name: String) : IgniteFileSystem = ignite().fileSystem(name)
     def config() : FileSystemConfiguration = new FileSystemConfiguration()
     def config(cfg: FileSystemConfiguration) = new FileSystemConfiguration(cfg)
+    def apply() : Iterable[IgniteFileSystem] = ignite().fileSystems()
+    def apply(name: String) : IgniteFileSystem = ignite().fileSystem(name)
   }
 
   object Atomic {
@@ -101,31 +95,32 @@ private[ignite] trait ExtensionAdapter {
   def countDownLatch(name: String, cnt: Int, autoDel: Boolean, create: Boolean) : IgniteCountDownLatch = {
     ignite().countDownLatch(name, cnt, autoDel, create)
   }
-  def queue[T](name: String, cap: Int, @NullableField cfg : CollectionConfiguration) : IgniteQueue[T] = ignite().queue(name, cap, cfg)
-  def set[T](name: String, @NullableField cfg : CollectionConfiguration) : IgniteSet[T] = ignite().set(name, cfg)
+
+  object Collection {
+    def config() : CollectionConfiguration = new CollectionConfiguration()
+    def queue[T](name: String, cap: Int, @NullableField cfg : CollectionConfiguration) : IgniteQueue[T] = ignite().queue(name, cap, cfg)
+    def set[T](name: String, @NullableField cfg : CollectionConfiguration) : IgniteSet[T] = ignite().set(name, cfg)
+  }
+
   def plugin[T <: IgnitePlugin](name: String) : T = ignite().plugin(name)
   def affinity[K](cacheName: String) : Affinity[K] = ignite().affinity(cacheName)
   def state() : IgniteState = Ignition.state(system.name)
 
-  def terminate() : Unit = {
+  def restart() : Unit = {
+    // Due lifeCycle listener will be restart automatically
+    stop0()
+  }
+
+  def stop() : Unit = {
     Await.ready(system.terminate(), Duration.Inf)
   }
 
   private def ignite() : Ignite = Ignition.ignite(system.name)
 
-  private val propsCacheCfg : CacheConfiguration[String, Props] = {
-    val cfg = Cache.config[String, Props](IgniteExtension.PropsCacheName)
-    cfg.setCacheMode(CacheMode.REPLICATED)
-      .setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_SYNC)
-    cfg
-  }
-
   protected[ignite] def init() : Unit = {
     start(system.actorOf(LocalNodeWatcher()))
-    IgniteExtension.systems.put(system.name, system)
-    Cache.getOrCreate(propsCacheCfg)
     system.registerOnTermination {
-      stop(system.name)
+      stop0()
       IgniteExtension.systems.remove(system.name)
     }
   }
@@ -134,16 +129,17 @@ private[ignite] trait ExtensionAdapter {
   protected[ignite] def start(monitor: ActorRef) : Unit = {
     val config = IgnitionEx.loadConfigurations(getClass.getResourceAsStream("/reference_ignite.xml"))
       .get1().toArray.apply(0).asInstanceOf[IgniteConfiguration]
-    config.setGridName(system.name)
-    config.setLifecycleBeans(lifeCycleBean(monitor))
+    config.
+      setGridName(system.name).
+      setLifecycleBeans(lifeCycleBean(monitor))
     IgnitionEx.start(config)
   }
 
-  private def stop(name: String): Unit = {
-    Ignition.stop(name, true)
+  private def stop0(): Unit = {
+    Ignition.stop(system.name, true)
   }
 
-  def lifeCycleBean(monitor: ActorRef) = new LifecycleBean {
+  private def lifeCycleBean(monitor: ActorRef) = new LifecycleBean {
     override def onLifecycleEvent(evt: LifecycleEventType): Unit = {
       evt match {
         case LifecycleEventType.AFTER_NODE_STOP => monitor ! Restart

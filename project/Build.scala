@@ -25,7 +25,7 @@ object Build extends MechaRepoBuild {
 
   def repoName = "akka-ignite"
 
-  lazy val finagleServices: Project = Project(
+  lazy val akkaIgnite: Project = Project(
     "akka-ignite",
     file("."),
     settings = buildSettings

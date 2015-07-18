@@ -1,8 +1,9 @@
 package com.cleawing.ignite.akka
 
-import akka.actor.{Props, Actor}
+import akka.actor.{Actor, Props}
 import com.cleawing.ignite.akka.LocalNodeWatcher.Restart
 import org.apache.ignite.IgniteState
+
 import scala.concurrent.duration._
 
 private[ignite] class LocalNodeWatcher extends Actor {
