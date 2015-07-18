@@ -7,6 +7,7 @@ object Build extends MechaRepoBuild {
     MechaRepoPlugin.defaultSettings ++ Seq(
     name := "akka-ignite",
     scalaVersion := "2.11.7",
+    scalacOptions ++= Seq("-unchecked", "-feature", "-deprecation", "-language:postfixOps"),
     version := "0.1",
     organization := "com.cleawing",
     libraryDependencies ++= superRepoDependencies("akka-ignite") ++ Dependencies.ignite ++ Dependencies.akka
@@ -21,8 +22,6 @@ object Build extends MechaRepoBuild {
         |val ignite = IgniteExtension(system)
       """.stripMargin
   )
-
-
 
   def repoName = "akka-ignite"
 
