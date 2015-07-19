@@ -17,7 +17,6 @@ object IgniteExtension
 
   // Global (by JVM) registry of ActorSystems
   private[ignite] val systems = concurrent.TrieMap.empty[String, ActorSystem]
-  private[ignite] val services = concurrent.TrieMap.empty[String, Props]
 
   def resolveActorSystem(name: String) : ActorSystem = {
     val systemName = if (name == null) "default" else name
@@ -26,7 +25,12 @@ object IgniteExtension
 }
 
 private[ignite] class IgniteExtensionImpl(protected val system: ExtendedActorSystem)
-  extends Extension with ExtensionAdapter {
+  extends Extension
+  with ExtensionAdapter
+  with IgniteAdapter {
 
+  protected val gridName : String = system.name
+
+  // Just entry point into ExtensionAdapter
   init()
 }
