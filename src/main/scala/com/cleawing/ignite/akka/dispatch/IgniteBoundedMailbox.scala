@@ -1,0 +1,60 @@
+package com.cleawing.ignite.akka.dispatch
+
+import akka.actor.{ActorSystem, ActorRef}
+import akka.dispatch._
+import com.cleawing.ignite.akka.{IgniteExtension, IgniteExtensionImpl}
+import com.typesafe.config.Config
+import org.apache.ignite.cache.CacheMemoryMode
+import org.apache.ignite.configuration.CollectionConfiguration
+import com.cleawing.ignite.akka.IgniteConfig.ConfigOps
+
+import scala.concurrent.duration.FiniteDuration
+
+class IgniteBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, memoryMode: CacheMemoryMode)
+  extends MailboxType with ProducesMessageQueue[IgniteBoundedQueueBasedMessageQueue] {
+
+  def this(settings: ActorSystem.Settings, config: Config) = this(
+    config.getInt("mailbox-capacity"),
+    config.getNanosDuration("mailbox-push-timeout-time"),
+    config.getCacheMemoryMode("cache-memory-mode")
+  )
+
+  if (capacity < 0) throw new IllegalArgumentException("The capacity for IgniteBoundedMailbox can not be negative")
+  if (pushTimeOut eq null) throw new IllegalArgumentException("The push time-out for IgniteBoundedMailbox can not be null")
+
+  final override def create(owner: Option[ActorRef], system: Option[ActorSystem]): MessageQueue = {
+    (owner, system) match {
+      case (Some(o), Some(s)) =>
+        val ignite = IgniteExtension(s)
+        val cfg = ignite.Collection.config()
+        cfg.setCacheMode(org.apache.ignite.cache.CacheMode.LOCAL)
+        cfg.setMemoryMode(memoryMode)
+        new IgniteBoundedQueueBasedMessageQueue(capacity, pushTimeOut, o.path.toStringWithoutAddress, cfg, ignite)
+    }
+  }
+}
+
+class IgniteBoundedQueueBasedMessageQueue(capacity: Int,
+                                          val pushTimeOut: FiniteDuration,
+                                          queueName: String,
+                                          cfg: CollectionConfiguration,
+                                          ignite: IgniteExtensionImpl)
+  extends BoundedQueueBasedMessageQueue {
+
+  import akka.serialization.JavaSerializer.currentSystem
+
+  final val queue = ignite.Collection.queue[Envelope](queueName, capacity, cfg)
+
+  override def enqueue(receiver: ActorRef, handle: Envelope): Unit = {
+    currentSystem.withValue(ignite.actorSystem) { super.enqueue(receiver, handle) }
+  }
+
+  override def dequeue(): Envelope = {
+    currentSystem.withValue(ignite.actorSystem) { super.dequeue() }
+  }
+
+  override def cleanUp(owner: ActorRef, deadLetters: MessageQueue): Unit = {
+    super.cleanUp(owner, deadLetters)
+    queue.close()
+  }
+}

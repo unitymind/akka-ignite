@@ -5,10 +5,15 @@ import akka.dispatch._
 import com.cleawing.ignite.akka.{IgniteExtensionImpl, IgniteExtension}
 import com.typesafe.config.Config
 import org.apache.ignite.configuration.CollectionConfiguration
+import org.apache.ignite.cache.CacheMemoryMode
+import com.cleawing.ignite.akka.IgniteConfig.ConfigOps
 
-case class IgniteUnboundedMailbox(settings: ActorSystem.Settings, config: Config)
-  extends MailboxType
-  with ProducesMessageQueue[IgniteUnboundedQueueBasedMessageQueue] {
+case class IgniteUnboundedMailbox(memoryMode: CacheMemoryMode)
+  extends MailboxType with ProducesMessageQueue[IgniteUnboundedQueueBasedMessageQueue] {
+
+  def this(settings: ActorSystem.Settings, config: Config) = {
+    this(config.getCacheMemoryMode("cache-memory-mode"))
+  }
 
   final override def create(owner: Option[ActorRef], system: Option[ActorSystem]): MessageQueue = {
     (owner, system) match {
@@ -16,7 +21,7 @@ case class IgniteUnboundedMailbox(settings: ActorSystem.Settings, config: Config
         val ignite = IgniteExtension(s)
         val cfg = ignite.Collection.config()
         cfg.setCacheMode(org.apache.ignite.cache.CacheMode.LOCAL)
-        cfg.setMemoryMode(org.apache.ignite.cache.CacheMemoryMode.OFFHEAP_TIERED)
+        cfg.setMemoryMode(memoryMode)
         new IgniteUnboundedQueueBasedMessageQueue(o.path.toStringWithoutAddress, cfg, ignite)
     }
   }
