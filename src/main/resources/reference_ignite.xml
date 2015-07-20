@@ -40,6 +40,12 @@
             </bean>
         </property>
 
+        <property name="pluginConfigurations">
+            <bean class="com.cleawing.ignite.plugins.GridNameValidationPluginConfiguration">
+                <property name="byPassValidation" value="false" />
+            </bean>
+        </property>
+
         <!-- Enable task execution events for examples. -->
         <property name="includeEventTypes">
             <list>

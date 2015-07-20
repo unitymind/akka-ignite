@@ -10,20 +10,20 @@ import akka.actor.{ActorRef, ExtendedActorSystem}
 private[ignite] trait ExtensionAdapter {
   import com.cleawing.ignite.akka.LocalNodeWatcher.Restart
 
-  protected def system: ExtendedActorSystem
+  protected def actorSystem: ExtendedActorSystem
 
   def restart() : Unit = {
     // Due lifeCycle listener will be restart automatically
     stop0()
   }
 
-  def shutdown() : Unit = system.shutdown()
+  def shutdown() : Unit = actorSystem.shutdown()
 
   protected[ignite] def init() : Unit = {
-    start(system.actorOf(LocalNodeWatcher()))
-    system.registerOnTermination {
+    start(actorSystem.actorOf(LocalNodeWatcher()))
+    actorSystem.registerOnTermination {
       stop0()
-      IgniteExtension.systems.remove(system.name)
+      IgniteExtension.systems.remove(actorSystem.name)
     }
   }
 
@@ -32,13 +32,13 @@ private[ignite] trait ExtensionAdapter {
     val config = IgnitionEx.loadConfigurations(getClass.getResourceAsStream("/reference_ignite.xml"))
       .get1().toArray.apply(0).asInstanceOf[IgniteConfiguration]
     config.
-      setGridName(system.name).
+      setGridName(actorSystem.name).
       setLifecycleBeans(lifeCycleBean(monitor))
     IgnitionEx.start(config)
   }
 
   private def stop0(): Unit = {
-    Ignition.stop(system.name, true)
+    Ignition.stop(actorSystem.name, true)
   }
 
   private def lifeCycleBean(monitor: ActorRef) = new LifecycleBean {

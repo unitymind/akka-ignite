@@ -7,7 +7,7 @@ import org.apache.ignite.services.ServiceContext
 class EmptyService extends IgniteService {
 
   override def init(ctx: ServiceContext) : Unit = {
-    system.actorOf(TestActor(), ctx.executionId().toString)
+    system.actorOf(EchoActor(), ctx.executionId().toString)
   }
 
   override def cancel(ctx: ServiceContext) : Unit = {

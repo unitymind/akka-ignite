@@ -24,12 +24,12 @@ object IgniteExtension
   }
 }
 
-private[ignite] class IgniteExtensionImpl(protected val system: ExtendedActorSystem)
+private[ignite] class IgniteExtensionImpl(val actorSystem: ExtendedActorSystem)
   extends Extension
   with ExtensionAdapter
   with IgniteAdapter {
 
-  protected val gridName : String = system.name
+  protected val gridName : String = actorSystem.name
 
   // Just entry point into ExtensionAdapter
   init()
