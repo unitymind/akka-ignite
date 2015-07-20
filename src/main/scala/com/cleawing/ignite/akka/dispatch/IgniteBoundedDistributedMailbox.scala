@@ -1,22 +1,23 @@
 package com.cleawing.ignite.akka.dispatch
 
-import akka.actor.{ActorSystem, ActorRef}
-import akka.dispatch.{MessageQueue, ProducesMessageQueue, MailboxType}
+import akka.actor.{ActorRef, ActorSystem}
+import akka.dispatch.{MailboxType, MessageQueue, ProducesMessageQueue}
+import com.cleawing.ignite.akka.IgniteConfig.ConfigOps
 import com.cleawing.ignite.akka.dispatch.MessageQueues.IgniteBoundedQueueBasedMessageQueue
 import com.cleawing.ignite.akka.{IgniteConfig, IgniteExtension}
 import com.typesafe.config.Config
-import org.apache.ignite.cache.{CacheMode, CacheMemoryMode}
-import com.cleawing.ignite.akka.IgniteConfig.ConfigOps
+import org.apache.ignite.cache.{CacheMemoryMode, CacheMode}
 
 import scala.concurrent.duration.FiniteDuration
 
-class IgniteBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, _memoryMode: CacheMemoryMode)
+class IgniteBoundedDistributedMailbox(capacity: Int, pushTimeOut: FiniteDuration, _memoryMode: CacheMemoryMode, _backups : Int)
   extends MailboxType with ProducesMessageQueue[IgniteBoundedQueueBasedMessageQueue] {
-
+  
   def this(settings: ActorSystem.Settings, config: Config) = this(
     config.getInt("mailbox-capacity"),
     config.getNanosDuration("mailbox-push-timeout-time"),
-    config.getCacheMemoryMode("cache-memory-mode")
+    config.getCacheMemoryMode("cache-memory-mode"),
+    config.getInt("backups")
   )
 
   if (capacity < 0) throw new IllegalArgumentException("The capacity for IgniteBoundedMailbox can not be negative")
@@ -26,7 +27,7 @@ class IgniteBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, _memoryMo
     (owner, system) match {
       case (Some(o), Some(s)) =>
         implicit val ignite = IgniteExtension(s)
-        val cfg = IgniteConfig.buildCollectionConfig(cacheMode = CacheMode.LOCAL, memoryMode = _memoryMode)
+        val cfg = IgniteConfig.buildCollectionConfig(cacheMode = CacheMode.PARTITIONED, memoryMode = _memoryMode, backups = _backups)
         new IgniteBoundedQueueBasedMessageQueue(capacity, pushTimeOut, o.path.toSerializationFormat, cfg, ignite)
       case _ => throw new IllegalStateException("ActorRef and ActorSystem should be defined.")
     }
