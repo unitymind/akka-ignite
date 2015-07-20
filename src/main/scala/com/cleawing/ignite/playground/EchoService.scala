@@ -4,7 +4,11 @@ import akka.actor.PoisonPill
 import com.cleawing.ignite.akka.IgniteService
 import org.apache.ignite.services.ServiceContext
 
-class EchoService extends IgniteService {
+trait EchoService {
+  def echo(msg: String) : Unit
+}
+
+class EchoServiceImpl extends IgniteService with EchoService {
 
   override def init(ctx: ServiceContext) : Unit = {
     _guardian = system.actorOf(EchoActor().withMailbox("akka.ignite.mailbox.unbounded"), s"${ctx.name()}-${ctx.executionId().toString}")
@@ -17,5 +21,9 @@ class EchoService extends IgniteService {
   override def cancel(ctx: ServiceContext) : Unit = {
     _guardian ! s"Canceled [${this.getClass.toString}]: ${ctx.executionId().toString}"
     _guardian ! PoisonPill
+  }
+
+  def echo(msg: String) : Unit = {
+    _guardian ! msg
   }
 }

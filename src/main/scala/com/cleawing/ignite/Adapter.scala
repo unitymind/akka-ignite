@@ -1,18 +1,18 @@
-package com.cleawing.ignite.akka
+package com.cleawing.ignite
 
 import java.util.concurrent.ExecutorService
 
+import org.apache.ignite._
 import org.apache.ignite.cache.affinity.Affinity
 import org.apache.ignite.cluster.ClusterGroup
 import org.apache.ignite.configuration._
-import org.apache.ignite._
 import org.apache.ignite.lang.IgniteProductVersion
 import org.apache.ignite.plugin.IgnitePlugin
+import org.apache.ignite.services.ServiceConfiguration
 
+import scala.collection.JavaConversions._
 
-trait IgniteAdapter {
-  import scala.collection.JavaConversions._
-  import com.cleawing.ignite.NullableField
+trait Adapter {
 
   protected def gridName : String
 
@@ -26,8 +26,15 @@ trait IgniteAdapter {
   def messages(grp: ClusterGroup) : IgniteMessaging = ignite().message(grp)
   def events() : IgniteEvents = ignite().events()
   def events(grp: ClusterGroup) : IgniteEvents = ignite().events(grp: ClusterGroup)
-  def services() : IgniteServices = ignite().services()
-  def services(grp: ClusterGroup) : IgniteServices = ignite().services(grp)
+
+  object Services {
+    def apply() : IgniteServices = ignite().services()
+    def apply(grp: ClusterGroup) : IgniteServices = ignite().services(grp)
+    def apply[T](name: String) : T = apply().service[T](name)
+    def config() : ServiceConfiguration = new ServiceConfiguration()
+    def all[T](name: String) : Seq[T] = apply().services[T](name).toSeq
+  }
+
   def executorService() : ExecutorService = ignite().executorService()
   def executorService(grp: ClusterGroup) : ExecutorService = ignite().executorService(grp)
   def version() : IgniteProductVersion = ignite().version()

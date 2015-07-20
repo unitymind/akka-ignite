@@ -8,13 +8,11 @@ import org.apache.ignite.configuration.CollectionConfiguration
 import scala.concurrent.duration.FiniteDuration
 
 object MessageQueues {
-  class IgniteBoundedQueueBasedMessageQueue(capacity: Int,
-                                            val pushTimeOut: FiniteDuration,
-                                            queueName: String,
-                                            cfg: CollectionConfiguration,
-                                            ignite: IgniteExtensionImpl)
-    extends BoundedQueueBasedMessageQueue {
-
+  class IgniteBoundedQueueBasedMessageQueue(
+    capacity: Int, val pushTimeOut: FiniteDuration,
+    queueName: String, cfg: CollectionConfiguration,
+    ignite: IgniteExtensionImpl) extends BoundedQueueBasedMessageQueue
+  {
     import akka.serialization.JavaSerializer.currentSystem
 
     final val queue = ignite.Collection.queue[Envelope](queueName, capacity, cfg)

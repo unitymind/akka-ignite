@@ -19,6 +19,7 @@ object Build extends MechaRepoBuild {
         |import akka.actor._
         |import com.cleawing.ignite.akka.IgniteExtension
         |import scala.collection.JavaConversions._
+        |import com.cleawing.ignite.Implicits._
         |
         |val system = ActorSystem()
         |val ignite = IgniteExtension(system)

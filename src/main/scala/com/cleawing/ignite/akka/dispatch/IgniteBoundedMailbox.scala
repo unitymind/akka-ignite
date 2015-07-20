@@ -6,7 +6,7 @@ import com.cleawing.ignite.akka.dispatch.MessageQueues.IgniteBoundedQueueBasedMe
 import com.cleawing.ignite.akka.{IgniteConfig, IgniteExtension}
 import com.typesafe.config.Config
 import org.apache.ignite.cache.{CacheMode, CacheMemoryMode}
-import com.cleawing.ignite.akka.IgniteConfig.ConfigOps
+import com.cleawing.ignite.Implicits.ConfigOps
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -26,7 +26,10 @@ class IgniteBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, _memoryMo
     (owner, system) match {
       case (Some(o), Some(s)) =>
         implicit val ignite = IgniteExtension(s)
-        val cfg = IgniteConfig.buildCollectionConfig(cacheMode = CacheMode.LOCAL, memoryMode = _memoryMode)
+        val cfg = IgniteConfig.CollectionBuilder()
+          .setCacheMode(CacheMode.LOCAL)
+          .setMemoryMode(_memoryMode)
+          .build()
         new IgniteBoundedQueueBasedMessageQueue(capacity, pushTimeOut, o.path.toSerializationFormat, cfg, ignite)
       case _ => throw new IllegalStateException("ActorRef and ActorSystem should be defined.")
     }

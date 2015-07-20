@@ -1,6 +1,7 @@
 package com.cleawing.ignite.akka
 
 import akka.actor._
+import com.cleawing.ignite.{Adapter => IgniteAdapter}
 
 import scala.collection.concurrent
 
@@ -31,6 +32,6 @@ private[ignite] class IgniteExtensionImpl(val actorSystem: ExtendedActorSystem)
 
   protected val gridName : String = actorSystem.name
 
-  // Just entry point into ExtensionAdapter
+  // Just entry point into IgniteAdapter
   init()
 }
