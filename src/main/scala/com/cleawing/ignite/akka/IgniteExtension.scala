@@ -16,11 +16,11 @@ object IgniteExtension
   override def get(system: ActorSystem): IgniteExtensionImpl = super.get(system)
 
   // Global (by JVM) registry of ActorSystems
-  private[ignite] val systems = concurrent.TrieMap.empty[String, ActorSystem]
+  private[ignite] val systems = concurrent.TrieMap.empty[String, ExtendedActorSystem]
 
-  def resolveActorSystem(name: String) : ActorSystem = {
+  def resolveActorSystem(name: String) : Option[ExtendedActorSystem] = {
     val systemName = if (name == null) "default" else name
-    systems.getOrElseUpdate(systemName, ActorSystem(systemName))
+    systems.get(systemName)
   }
 }
 
