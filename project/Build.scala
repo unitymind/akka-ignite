@@ -10,6 +10,7 @@ object Build extends MechaRepoBuild {
     scalacOptions ++= Seq("-unchecked", "-feature", "-deprecation", "-language:postfixOps"),
     version := "0.1",
     organization := "com.cleawing",
+    resolvers += "GridGain External Repository" at "http://www.gridgainsystems.com/nexus/content/repositories/external",
     libraryDependencies ++= superRepoDependencies("akka-ignite") ++ Dependencies.ignite ++ Dependencies.akka
       ++ Dependencies.akkaStream ++ Dependencies.scalaz
       ++ Seq(Dependencies.typesafeConfig, Dependencies.scalaTest),

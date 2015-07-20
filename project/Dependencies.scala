@@ -4,7 +4,7 @@ object Dependencies {
   object Versions {
     val typesafeConfig  = "1.3.0"
     val scalaz          = "7.1.3"
-    val ignite          = "1.2.0-incubating"
+    val ignite          = "1.3.2"
     val akka            = "2.3.12"
     val akkaStreams     = "1.0"
     val scalazScalaTest = "0.2.3"
