@@ -27,7 +27,7 @@ private[ignite] trait ExtensionAdapter {
     }
   }
 
-  // TODO. Implement idiomatic TypeSafe akka config (and do not depend on Spring Beans)
+  // TODO. Implement idiomatic TypeSafe akka config (and do not depend on ignite-spring)
   protected[ignite] def start(monitor: ActorRef) : Unit = {
     val config = IgnitionEx.loadConfigurations(getClass.getResourceAsStream("/reference_ignite.xml"))
       .get1().toArray.apply(0).asInstanceOf[IgniteConfiguration]

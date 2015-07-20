@@ -2,7 +2,7 @@ package com.cleawing.ignite.akka.dispatch
 
 import akka.actor.{ActorSystem, ActorRef}
 import akka.dispatch._
-import com.cleawing.ignite.akka.{IgniteExtension, IgniteExtensionImpl}
+import com.cleawing.ignite.akka.{IgniteConfig, IgniteExtension, IgniteExtensionImpl}
 import com.typesafe.config.Config
 import org.apache.ignite.cache.CacheMemoryMode
 import org.apache.ignite.configuration.CollectionConfiguration
@@ -10,8 +10,10 @@ import com.cleawing.ignite.akka.IgniteConfig.ConfigOps
 
 import scala.concurrent.duration.FiniteDuration
 
-class IgniteBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, memoryMode: CacheMemoryMode)
+class IgniteBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, _memoryMode: CacheMemoryMode)
   extends MailboxType with ProducesMessageQueue[IgniteBoundedQueueBasedMessageQueue] {
+
+  import  org.apache.ignite.cache.CacheMode
 
   def this(settings: ActorSystem.Settings, config: Config) = this(
     config.getInt("mailbox-capacity"),
@@ -25,11 +27,9 @@ class IgniteBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, memoryMod
   final override def create(owner: Option[ActorRef], system: Option[ActorSystem]): MessageQueue = {
     (owner, system) match {
       case (Some(o), Some(s)) =>
-        val ignite = IgniteExtension(s)
-        val cfg = ignite.Collection.config()
-        cfg.setCacheMode(org.apache.ignite.cache.CacheMode.LOCAL)
-        cfg.setMemoryMode(memoryMode)
-        new IgniteBoundedQueueBasedMessageQueue(capacity, pushTimeOut, o.path.toStringWithoutAddress, cfg, ignite)
+        implicit val ignite = IgniteExtension(s)
+        val cfg = IgniteConfig.buildCollectionConfig(cacheMode = CacheMode.LOCAL, memoryMode = _memoryMode)
+        new IgniteBoundedQueueBasedMessageQueue(capacity, pushTimeOut, o.path.toSerializationFormat, cfg, ignite)
     }
   }
 }

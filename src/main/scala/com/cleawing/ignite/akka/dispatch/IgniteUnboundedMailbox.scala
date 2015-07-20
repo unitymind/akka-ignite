@@ -2,13 +2,13 @@ package com.cleawing.ignite.akka.dispatch
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.dispatch._
-import com.cleawing.ignite.akka.{IgniteExtensionImpl, IgniteExtension}
+import com.cleawing.ignite.akka.{IgniteConfig, IgniteExtensionImpl, IgniteExtension}
 import com.typesafe.config.Config
 import org.apache.ignite.configuration.CollectionConfiguration
-import org.apache.ignite.cache.CacheMemoryMode
+import org.apache.ignite.cache.{CacheMode, CacheMemoryMode}
 import com.cleawing.ignite.akka.IgniteConfig.ConfigOps
 
-case class IgniteUnboundedMailbox(memoryMode: CacheMemoryMode)
+case class IgniteUnboundedMailbox(_memoryMode: CacheMemoryMode)
   extends MailboxType with ProducesMessageQueue[IgniteUnboundedQueueBasedMessageQueue] {
 
   def this(settings: ActorSystem.Settings, config: Config) = {
@@ -18,10 +18,8 @@ case class IgniteUnboundedMailbox(memoryMode: CacheMemoryMode)
   final override def create(owner: Option[ActorRef], system: Option[ActorSystem]): MessageQueue = {
     (owner, system) match {
       case (Some(o), Some(s)) =>
-        val ignite = IgniteExtension(s)
-        val cfg = ignite.Collection.config()
-        cfg.setCacheMode(org.apache.ignite.cache.CacheMode.LOCAL)
-        cfg.setMemoryMode(memoryMode)
+        implicit val ignite = IgniteExtension(s)
+        val cfg = IgniteConfig.buildCollectionConfig(cacheMode = CacheMode.LOCAL, memoryMode = _memoryMode)
         new IgniteUnboundedQueueBasedMessageQueue(o.path.toStringWithoutAddress, cfg, ignite)
     }
   }

@@ -3,7 +3,12 @@ package com.cleawing.ignite.akka
 import java.util.concurrent.TimeUnit
 
 import com.typesafe.config.Config
+import org.apache.ignite.cache.CacheMode
 import org.apache.ignite.cache.CacheMemoryMode
+import org.apache.ignite.cache.CacheAtomicityMode
+import org.apache.ignite.cluster.ClusterNode
+import org.apache.ignite.configuration.CollectionConfiguration
+import org.apache.ignite.lang.IgnitePredicate
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -22,5 +27,25 @@ object IgniteConfig {
 
     private def getDuration(path: String, unit: TimeUnit): FiniteDuration =
       Duration(config.getDuration(path, unit), unit)
+  }
+
+  def buildCollectionConfig(
+    atomicityMode: CacheAtomicityMode = CacheAtomicityMode.ATOMIC,
+    cacheMode: CacheMode = CacheMode.PARTITIONED,
+    memoryMode: CacheMemoryMode = CacheMemoryMode.ONHEAP_TIERED,
+    nodeFilter : IgnitePredicate[ClusterNode] = null,
+    backups : Int = 0,
+    offHeapMaxMem : Long = -1,
+    collocated : Boolean = false)(implicit ignite: IgniteAdapter) : CollectionConfiguration = {
+
+    val cfg = ignite.Collection.config()
+    cfg.setAtomicityMode(atomicityMode)
+    cfg.setCacheMode(cacheMode)
+    cfg.setMemoryMode(memoryMode)
+    cfg.setNodeFilter(nodeFilter)
+    cfg.setBackups(backups)
+    cfg.setOffHeapMaxMemory(offHeapMaxMem)
+    cfg.setCollocated(collocated)
+    cfg
   }
 }
