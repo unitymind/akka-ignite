@@ -22,7 +22,7 @@ object Build extends MechaRepoBuild {
         |import com.cleawing.ignite.Implicits._
         |
         |val system = ActorSystem()
-        |val ignite = IgniteExtension(system)
+        |implicit val ignite = IgniteExtension(system)
       """.stripMargin
   )
 

@@ -1,12 +1,20 @@
 package com.cleawing.ignite
 
-import _root_.akka.actor.{ActorRef, Actor}
+import _root_.akka.actor.{ActorContext, Props, ActorRef, Actor}
+import com.cleawing.ignite.akka.remote.IgniteProxyActor
 
 import org.apache.ignite.IgniteDataStreamer
 
 package object akka {
-  trait Ignition { this: Actor =>
-    final protected val ignite = IgniteExtension(context.system)
+  trait Ignition extends { this: Actor =>
+    implicit final protected val ignite = IgniteExtension(context.system)
+
+    def actorOf(props: Props) : ActorRef = {
+      context.actorOf(IgniteProxyActor(props))
+    }
+    def actorOf(props: Props, name: String) : ActorRef = {
+      context.actorOf(IgniteProxyActor(props), name)
+    }
   }
 
   trait Streaming {

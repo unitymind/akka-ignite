@@ -12,11 +12,10 @@ import org.apache.ignite.services.ServiceConfiguration
 
 import scala.collection.JavaConversions._
 
-trait Adapter {
+trait IgniteAdapter {
 
-  protected def gridName : String
+  def name : String
 
-  def name : String = ignite().name()
   def log() : IgniteLogger = ignite().log()
   def configuration() : IgniteConfiguration = ignite().configuration()
   def cluster() : IgniteCluster = ignite().cluster()
@@ -102,7 +101,7 @@ trait Adapter {
 
   def plugin[T <: IgnitePlugin](name: String) : T = ignite().plugin(name)
   def affinity[K](cacheName: String) : Affinity[K] = ignite().affinity(cacheName)
-  def state() : IgniteState = Ignition.state(gridName)
+  def state() : IgniteState = Ignition.state(name)
 
-  protected def ignite() : Ignite = Ignition.ignite(gridName)
+  protected def ignite() : Ignite = Ignition.ignite(name)
 }

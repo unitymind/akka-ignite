@@ -33,6 +33,8 @@
         <property name="peerClassLoadingEnabled" value="true"/>
         <!--<property name="deploymentMode" value="CONTINUOUS"/>-->
 
+        <!--<property name="clientMode" value="true"/>-->
+
         <property name="marshaller">
             <bean class="org.apache.ignite.marshaller.optimized.OptimizedMarshaller">
                 <!-- Set to false to allow non-serializable objects in examples, default is true. -->

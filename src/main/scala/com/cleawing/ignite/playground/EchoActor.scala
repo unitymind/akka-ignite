@@ -1,10 +1,12 @@
 package com.cleawing.ignite.playground
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Props, Actor}
 
 class EchoActor extends Actor {
   def receive = {
-    case x => println(x)
+    case x =>
+      println(x)
+      sender() ! x
   }
 }
 
