@@ -20,7 +20,7 @@ private[ignite] trait ExtensionAdapter {
   def shutdown() : Unit = actorSystem.shutdown()
 
   protected[ignite] def init() : Unit = {
-    start(actorSystem.actorOf(LocalNodeWatcher()))
+    start(actorSystem.actorOf(LocalNodeWatcher(), "local-node-watcher"))
     actorSystem.registerOnTermination {
       stop0()
       IgniteExtension.systems.remove(actorSystem.name)
