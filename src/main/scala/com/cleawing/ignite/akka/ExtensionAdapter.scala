@@ -1,6 +1,6 @@
 package com.cleawing.ignite.akka
 
-import com.cleawing.ignite.akka.remote.SourceProxyActor
+import com.cleawing.ignite.akka.transport.{SourceProxyActor, RabbitSourceProxyActor}
 import org.apache.ignite._
 import org.apache.ignite.configuration._
 import org.apache.ignite.internal.IgnitionEx
@@ -13,10 +13,16 @@ private[ignite] trait ExtensionAdapter {
 
   protected def actorSystem: ExtendedActorSystem
 
-  def actorOf(props: Props): ActorRef = {
+  def actorOfRabbit(props: Props): ActorRef = {
+    actorSystem.actorOf(RabbitSourceProxyActor(props))
+  }
+  def actorOfRabbit(props: Props, name: String) : ActorRef = {
+    actorSystem.actorOf(RabbitSourceProxyActor(props), name)
+  }
+  def actorOfIgnite(props: Props): ActorRef = {
     actorSystem.actorOf(SourceProxyActor(props))
   }
-  def actorOf(props: Props, name: String) : ActorRef = {
+  def actorOfIgnite(props: Props, name: String) : ActorRef = {
     actorSystem.actorOf(SourceProxyActor(props), name)
   }
 

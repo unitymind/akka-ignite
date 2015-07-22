@@ -36,11 +36,16 @@ object Build extends MechaRepoBuild {
     name := "akka-ignite",
     scalaVersion := "2.11.7",
     scalacOptions ++= Seq("-unchecked", "-feature", "-deprecation", "-language:postfixOps"),
+    javacOptions ++= Seq("-Xlint:unchecked"),
     version := "0.1",
     organization := "com.cleawing",
-    resolvers += "GridGain External Repository" at "http://www.gridgainsystems.com/nexus/content/repositories/external",
-    libraryDependencies ++= superRepoDependencies("akka-ignite") ++ Dependencies.ignite ++ Dependencies.akka
-      ++ Dependencies.akkaStream ++ Dependencies.scalaz
+    resolvers ++= Seq(
+      "SpinGo OSS" at "http://spingo-oss.s3.amazonaws.com/repositories/releases",
+      "GridGain External Repository" at "http://www.gridgainsystems.com/nexus/content/repositories/external"
+    ),
+    libraryDependencies ++= superRepoDependencies("akka-ignite") ++ Dependencies.ignite
+      ++ Dependencies.akka ++ Dependencies.akkaStream
+      ++ Dependencies.opRabbit ++ Dependencies.scalaz
       ++ Seq(Dependencies.typesafeConfig, Dependencies.scalaTest),
     assemblyMergeStrategy in assembly := customMergeStrategy,
     mainClass in assembly := Some("com.cleawing.ignite.MainApp"),

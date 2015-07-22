@@ -1,4 +1,4 @@
-package com.cleawing.ignite.akka.remote
+package com.cleawing.ignite.akka.transport
 
 import akka.actor.{ExtendedActorSystem, Actor, InvalidActorNameException, Props}
 import com.cleawing.ignite.akka.{IgniteConfig, Ignition}
@@ -6,7 +6,7 @@ import org.apache.ignite.{IgniteQueue, IgniteException}
 import org.apache.ignite.cache.{CacheMemoryMode, CacheMode}
 
 private[ignite] class SourceProxyActor(props: Props) extends Actor with Ignition {
-  import com.cleawing.ignite.akka.remote.SourceProxyActor.ReadReplies
+  import com.cleawing.ignite.akka.transport.SourceProxyActor.ReadReplies
 
   private val services = ignite.Services(ignite.cluster().forRemotes())
   private val selfId = self.path.toStringWithoutAddress

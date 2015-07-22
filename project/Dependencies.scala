@@ -7,6 +7,7 @@ object Dependencies {
     val ignite          = "1.3.2"
     val akka            = "2.3.12"
     val akkaStreams     = "1.0"
+    val opRabbit        = "1.0.0-M9"
     val scalazScalaTest = "0.2.3"
     val scalaTest       = "2.2.5"
   }
@@ -29,6 +30,10 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-http-experimental"           % Versions.akkaStreams,
     "com.typesafe.akka" %% "akka-stream-testkit-experimental" % Versions.akkaStreams % "test",
     "com.typesafe.akka" %% "akka-http-testkit-experimental"   % Versions.akkaStreams % "test"
+  )
+
+  lazy val opRabbit = Seq(
+    "com.spingo"            %% "op-rabbit-core" % Versions.opRabbit
   )
 
   lazy val scalaz = Seq(

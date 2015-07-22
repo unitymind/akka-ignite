@@ -1,4 +1,4 @@
-package com.cleawing.ignite.akka.remote
+package com.cleawing.ignite.akka.transport
 
 import akka.actor.{PoisonPill, ActorRef, Actor, Props}
 import com.cleawing.ignite.akka.Ignition
@@ -6,7 +6,7 @@ import com.cleawing.ignite.akka.Ignition
 import scala.collection.mutable.HashMap
 
 class TargetProxyActor(props: Props, deploymentId: String) extends Actor with Ignition {
-  import com.cleawing.ignite.akka.remote.TargetProxyActor.ReadMessages
+  import com.cleawing.ignite.akka.transport.TargetProxyActor.ReadMessages
 
   private val readQueue = ignite.Collection.queue[(Any, String)](s"$deploymentId-writes", 0, null)
   private var target : ActorRef =_

@@ -1,4 +1,4 @@
-package com.cleawing.ignite.akka.remote
+package com.cleawing.ignite.akka.transport
 
 import akka.actor.{PoisonPill, Props, ActorRef, ExtendedActorSystem}
 import com.cleawing.ignite.IgniteAdapter

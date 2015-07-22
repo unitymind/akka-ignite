@@ -1,7 +1,7 @@
 package com.cleawing.ignite
 
 import _root_.akka.actor.{ActorContext, Props, ActorRef, Actor}
-import com.cleawing.ignite.akka.remote.SourceProxyActor
+import com.cleawing.ignite.akka.transport.SourceProxyActor
 
 import org.apache.ignite.IgniteDataStreamer
 
