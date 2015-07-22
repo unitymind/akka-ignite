@@ -6,6 +6,7 @@ class EchoActor extends Actor {
   def receive = {
     case x =>
       println(x)
+//      println(sender())
       sender() ! x
   }
 }

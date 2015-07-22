@@ -1,7 +1,7 @@
 package com.cleawing.ignite
 
 import _root_.akka.actor.{ActorContext, Props, ActorRef, Actor}
-import com.cleawing.ignite.akka.remote.IgniteProxyActor
+import com.cleawing.ignite.akka.remote.SourceProxyActor
 
 import org.apache.ignite.IgniteDataStreamer
 
@@ -10,10 +10,10 @@ package object akka {
     implicit final protected val ignite = IgniteExtension(context.system)
 
     def actorOf(props: Props) : ActorRef = {
-      context.actorOf(IgniteProxyActor(props))
+      context.actorOf(SourceProxyActor(props))
     }
     def actorOf(props: Props, name: String) : ActorRef = {
-      context.actorOf(IgniteProxyActor(props), name)
+      context.actorOf(SourceProxyActor(props), name)
     }
   }
 

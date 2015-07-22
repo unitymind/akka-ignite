@@ -11,10 +11,11 @@ class EchoActor2 extends Actor with Ignition {
 
   def receive = {
     case x =>
-      println(x)
       if (sender() != echo) {
         echo ! x
         sender ! x
+      } else {
+        println(x)
       }
   }
 }

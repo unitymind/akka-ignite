@@ -1,6 +1,6 @@
 package com.cleawing.ignite.akka
 
-import com.cleawing.ignite.akka.remote.IgniteProxyActor
+import com.cleawing.ignite.akka.remote.SourceProxyActor
 import org.apache.ignite._
 import org.apache.ignite.configuration._
 import org.apache.ignite.internal.IgnitionEx
@@ -14,10 +14,10 @@ private[ignite] trait ExtensionAdapter {
   protected def actorSystem: ExtendedActorSystem
 
   def actorOf(props: Props): ActorRef = {
-    actorSystem.actorOf(IgniteProxyActor(props))
+    actorSystem.actorOf(SourceProxyActor(props))
   }
   def actorOf(props: Props, name: String) : ActorRef = {
-    actorSystem.actorOf(IgniteProxyActor(props), name)
+    actorSystem.actorOf(SourceProxyActor(props), name)
   }
 
   def restart() : Unit = {
