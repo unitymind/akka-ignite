@@ -3,6 +3,7 @@ package com.cleawing.ignite.akka.services
 import java.util.UUID
 
 import akka.actor.{Actor, ActorSystem, Props, ActorRef}
+import com.cleawing.ignite.Injector
 import org.apache.ignite.Ignite
 import org.apache.ignite.resources.IgniteInstanceResource
 import org.apache.ignite.services.{ServiceContext, Service}
@@ -37,8 +38,7 @@ trait ActorService extends IgniteService {
 
 private[ignite] class ActorServiceImpl(clazz: Class[_], args: immutable.Seq[Any])
   extends IgniteServiceImpl
-  with ActorService
-  with AkkaInjectable {
+  with ActorService with AkkaInjectable {
 
   import com.cleawing.ignite.injector
 

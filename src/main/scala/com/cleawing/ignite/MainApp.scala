@@ -1,9 +1,15 @@
 package com.cleawing.ignite
 
 import _root_.akka.actor.ActorSystem
-import com.cleawing.ignite.akka.IgniteExtension
+import scaldi.akka.AkkaInjectable._
 
 object MainApp extends App {
-  val system = ActorSystem()
-  val ignite = IgniteExtension(system)
+  try {
+    val system = inject [ActorSystem]
+    val igniteGrid = inject [IgniteGrid]
+  } catch {
+    case t: Throwable =>
+      injector.destroy()
+      throw t
+  }
 }
