@@ -22,9 +22,20 @@ private[ignite] object IgniteGridFactory {
 
         .setGridName(config.getString("name"))
         .setClientMode(config.getBoolean("client-mode"))
+
         .setPeerClassLoadingEnabled(config.getBoolean("peer-class-loading.enabled"))
         .setPeerClassLoadingLocalClassPathExclude(config.getStringList("peer-class-loading.loading-local-exclude").asScala:_*)
+        .setPeerClassLoadingMissedResourcesCacheSize(config.getInt("peer-class-loading.missed-resources-cache-size"))
         .setDeploymentMode(config.getDeploymentMode("peer-class-loading.deployment-mode"))
+
+        .setMetricsHistorySize(config.getInt("metrics.history-size"))
+        .setMetricsExpireTime(config.getLong("metrics.expire-time"))
+        .setMetricsUpdateFrequency(config.getLong("metrics.update-frequency"))
+        .setMetricsLogFrequency(config.getLong("metrics.log-frequency"))
+
+        .setNetworkTimeout(config.getLong("network.timeout"))
+        .setNetworkSendRetryDelay(config.getLong("network.send-retry-delay"))
+        .setNetworkSendRetryCount(config.getInt("network.send-retry-count"))
     }
 
     try {
