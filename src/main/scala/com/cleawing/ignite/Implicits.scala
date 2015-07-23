@@ -2,16 +2,41 @@ package com.cleawing.ignite
 
 import java.util.concurrent.TimeUnit
 
+import _root_.akka.actor.{ActorRef, Props, ActorSystem}
+import com.cleawing.ignite.akka.services.{ActorServiceCollector, OutboundServiceActor, ActorService}
 import com.typesafe.config.Config
 import org.apache.ignite.IgniteServices
 import org.apache.ignite.cache.CacheMemoryMode
 import org.apache.ignite.configuration.DeploymentMode
 import org.apache.ignite.services.{Service, ServiceConfiguration, ServiceDescriptor}
+import scaldi.Injectable
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 object Implicits {
+  final implicit class ActorSystemOps(val system: ActorSystem) extends Injectable {
+    private val grid = inject [IgniteGrid]
+    private def remoteServices() = grid.Services(grid.cluster().forRemotes()).withAsync()
+    private def localServices() = grid.Services(grid.cluster().forLocal()).withAsync()
+
+    def serviceOf(props: Props, name: String, totalCnt: Int, maxPerNodeCnt: Int) : ActorRef = {
+      val ref = system.actorOf(OutboundServiceActor(), name)
+      val serviceName = s"${ref.path.toSerializationFormat.replace(system.toString, "")}"
+      remoteServices()
+        .deployMultiple(serviceName, ActorService(props.clazz, props.args:_*), totalCnt, maxPerNodeCnt)
+
+      localServices()
+        .deployClusterSingleton(s"$serviceName-${grid.cluster().localNode().id}", ActorServiceCollector(ref.path.toSerializationFormat))
+
+      ref
+    }
+
+    def serviceStop(name: String) : Unit = {
+      remoteServices().cancel(name)
+    }
+  }
+
   final implicit class ConfigOps(val config: Config) extends AnyVal {
     def getCacheMemoryMode(path: String) : CacheMemoryMode = config.getString(path) match {
       case "ONHEAP_TIERED" => CacheMemoryMode.ONHEAP_TIERED

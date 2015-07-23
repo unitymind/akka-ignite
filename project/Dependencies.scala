@@ -19,7 +19,8 @@ object Dependencies {
 
   lazy val ignite = Seq(
     "org.apache.ignite" % "ignite-core"   % Versions.ignite,
-    "org.apache.ignite" % "ignite-spring" % Versions.ignite
+    "org.apache.ignite" % "ignite-spring" % Versions.ignite,
+    "org.apache.ignite" % "ignite-scalar" % Versions.ignite
   )
 
   lazy val akka = Seq(
