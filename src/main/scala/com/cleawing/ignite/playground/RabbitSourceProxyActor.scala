@@ -1,10 +1,11 @@
-package com.cleawing.ignite.akka.transport
+package com.cleawing.ignite.playground
 
 import akka.actor._
 import com.cleawing.ignite.akka.Ignition
 import com.spingo.op_rabbit.consumer.{BoundChannel, Subscription}
 import com.spingo.op_rabbit.{QueueMessage, RabbitControl}
 import org.apache.ignite.IgniteException
+
 import scala.concurrent.duration._
 
 private[ignite] class RabbitSourceProxyActor(props: Props) extends Actor with Ignition {

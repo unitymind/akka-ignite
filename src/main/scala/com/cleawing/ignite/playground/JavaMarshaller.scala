@@ -1,8 +1,8 @@
-package com.cleawing.ignite.akka.transport
+package com.cleawing.ignite.playground
 
-import java.io.{ObjectInputStream, ByteArrayInputStream, ObjectOutputStream, ByteArrayOutputStream}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 
-import com.spingo.op_rabbit.{RabbitUnmarshaller, RabbitMarshaller}
+import com.spingo.op_rabbit.{RabbitMarshaller, RabbitUnmarshaller}
 
 object JavaMarshaller extends RabbitMarshaller[ProxyEnvelope] with RabbitUnmarshaller[ProxyEnvelope]  {
   protected val contentType = "application/octet-stream"

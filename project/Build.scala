@@ -46,19 +46,19 @@ object Build extends MechaRepoBuild {
     libraryDependencies ++= superRepoDependencies("akka-ignite") ++ Dependencies.ignite
       ++ Dependencies.akka ++ Dependencies.akkaStream
       ++ Dependencies.opRabbit ++ Dependencies.scalaz
-      ++ Seq(Dependencies.typesafeConfig, Dependencies.scalaTest),
+      ++ Seq(Dependencies.typesafeConfig, Dependencies.scaldi, Dependencies.scalaTest),
     assemblyMergeStrategy in assembly := customMergeStrategy,
-    mainClass in assembly := Some("com.cleawing.ignite.MainApp"),
-    initialCommands in console :=
-      """
-        |import akka.actor._
-        |import com.cleawing.ignite.akka.IgniteExtension
-        |import scala.collection.JavaConversions._
-        |import com.cleawing.ignite.Implicits._
-        |
-        |val system = ActorSystem()
-        |implicit val ignite = IgniteExtension(system)
-      """.stripMargin
+    mainClass in assembly := Some("com.cleawing.ignite.MainApp")
+//    initialCommands in console :=
+//      """
+//        |import akka.actor._
+//        |import com.cleawing.ignite.akka.IgniteExtension
+//        |import scala.collection.JavaConversions._
+//        |import com.cleawing.ignite.Implicits._
+//        |
+//        |val system = ActorSystem()
+//        |implicit val ignite = IgniteExtension(system)
+//      """.stripMargin
   )
 
   def repoName = "akka-ignite"

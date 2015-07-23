@@ -1,9 +1,8 @@
-package com.cleawing.ignite.akka.transport
+package com.cleawing.ignite.playground
 
-import akka.actor.{ActorRef, Props, Actor}
+import akka.actor.{Actor, ActorRef, Props}
 import com.cleawing.ignite.akka.Ignition
 import com.spingo.op_rabbit.QueueMessage
-import org.apache.ignite.IgniteQueue
 
 
 private[ignite] class RabbitProxyResponderActor(source: String, deploymentId: String, rabbitMq: ActorRef, target: ActorRef) extends Actor with Ignition {

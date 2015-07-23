@@ -1,12 +1,11 @@
-package com.cleawing.ignite.akka.transport
+package com.cleawing.ignite.playground
 
-import akka.actor.{PoisonPill, Props, ActorRef, ExtendedActorSystem}
-import com.cleawing.ignite.IgniteAdapter
-import com.cleawing.ignite.akka.{IgniteExtensionImpl, IgniteExtension}
+import akka.actor.{ActorRef, ExtendedActorSystem, PoisonPill, Props}
+import com.cleawing.ignite.akka.IgniteExtension
 import org.apache.ignite.Ignite
 import org.apache.ignite.resources.IgniteInstanceResource
-import org.apache.ignite.services.{ServiceContext, Service}
-import scala.collection.mutable.HashMap
+import org.apache.ignite.services.{Service, ServiceContext}
+
 import scala.language.existentials
 
 

@@ -1,6 +1,6 @@
 package com.cleawing.ignite.akka
 
-import com.cleawing.ignite.akka.transport.{SourceProxyActor, RabbitSourceProxyActor}
+import com.cleawing.ignite.playground.{SourceProxyActor, RabbitSourceProxyActor}
 import org.apache.ignite._
 import org.apache.ignite.configuration._
 import org.apache.ignite.internal.IgnitionEx

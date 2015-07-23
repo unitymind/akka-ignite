@@ -1,6 +1,6 @@
-package com.cleawing.ignite.akka.transport
+package com.cleawing.ignite.playground
 
-import akka.actor.{Props, Actor}
+import akka.actor.{Actor, Props}
 import com.cleawing.ignite.akka.Ignition
 import org.apache.ignite.IgniteQueue
 

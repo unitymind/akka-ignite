@@ -1,4 +1,4 @@
-package com.cleawing.ignite.akka.transport
+package com.cleawing.ignite.playground
 
 import akka.actor._
 import com.spingo.op_rabbit.RabbitControl

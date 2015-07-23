@@ -1,6 +1,6 @@
-package com.cleawing.ignite.akka.transport
+package com.cleawing.ignite.playground
 
-import akka.actor.{Actor, ActorSystem, ActorRef}
+import akka.actor.{Actor, ActorRef, ActorSystem}
 
 final case class ProxyEnvelope (message: Any, sender: String)
 
