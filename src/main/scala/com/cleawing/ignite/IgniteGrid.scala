@@ -14,41 +14,46 @@ private[ignite] object IgniteGridFactory {
   import Implicits.ConfigOps
 
   def apply(config: Config) : IgniteGrid = {
+    import config._
+
     def buildConfiguration() : IgniteConfiguration = {
-      (if (getClass.getResource(config.getString("config-resource-path")) != null) {
-        IgnitionEx.loadConfigurations(getClass.getResourceAsStream("/ignite.xml"))
+      // TODO. Be careful with class loader
+      (if (this.getClass.getResource(getString("config-resource-path")) != null) {
+        IgnitionEx.loadConfigurations(this.getClass.getResourceAsStream("/ignite.xml"))
           .get1().toArray.apply(0).asInstanceOf[IgniteConfiguration]
       } else new IgniteConfiguration())
 
-        .setGridName(config.getString("name"))
-        .setClientMode(config.getBoolean("client-mode"))
+        .setGridName(getString("name"))
+        .setClientMode(getBoolean("client-mode"))
 
-        .setPeerClassLoadingEnabled(config.getBoolean("peer-class-loading.enabled"))
-        .setPeerClassLoadingLocalClassPathExclude(config.getStringList("peer-class-loading.loading-local-exclude").asScala:_*)
-        .setPeerClassLoadingMissedResourcesCacheSize(config.getInt("peer-class-loading.missed-resources-cache-size"))
+        .setPeerClassLoadingEnabled(getBoolean("peer-class-loading.enabled"))
+        .setPeerClassLoadingLocalClassPathExclude(getStringList("peer-class-loading.loading-local-exclude").asScala:_*)
+        .setPeerClassLoadingMissedResourcesCacheSize(getInt("peer-class-loading.missed-resources-cache-size"))
         .setDeploymentMode(config.getDeploymentMode("peer-class-loading.deployment-mode"))
 
-        .setMetricsHistorySize(config.getInt("metrics.history-size"))
-        .setMetricsExpireTime(config.getLong("metrics.expire-time"))
-        .setMetricsUpdateFrequency(config.getLong("metrics.update-frequency"))
-        .setMetricsLogFrequency(config.getLong("metrics.log-frequency"))
+        .setMetricsHistorySize(getInt("metrics.history-size"))
+        .setMetricsExpireTime(getLong("metrics.expire-time"))
+        .setMetricsUpdateFrequency(getLong("metrics.update-frequency"))
+        .setMetricsLogFrequency(getLong("metrics.log-frequency"))
 
-        .setNetworkTimeout(config.getLong("network.timeout"))
-        .setNetworkSendRetryDelay(config.getLong("network.send-retry-delay"))
-        .setNetworkSendRetryCount(config.getInt("network.send-retry-count"))
-        .setLocalHost(if (config.getIsNull("network.localhost")) null else config.getString("network.localhost"))
+        .setNetworkTimeout(getLong("network.timeout"))
+        .setNetworkSendRetryDelay(getLong("network.send-retry-delay"))
+        .setNetworkSendRetryCount(getInt("network.send-retry-count"))
+        .setLocalHost(if (getIsNull("network.localhost")) null else getString("network.localhost"))
     }
 
+    new sys.SystemProperties update("IGNITE_QUIET", if(getBoolean("quiet")) "true" else "false")
+
     try {
-      if (config.hasPath("external-config-path")) {
-        val cfg = IgnitionEx.loadConfiguration(config.getString("external-config-path")).get1()
-        if (cfg.getGridName == null) cfg.setGridName(config.getString("name"))
+      if (hasPath("external-config-path")) {
+        val cfg = IgnitionEx.loadConfiguration(getString("external-config-path")).get1()
+        if (cfg.getGridName == null) cfg.setGridName(getString("name"))
         new IgniteGrid(cfg)
       } else {
         new IgniteGrid(buildConfiguration())
       }
     } catch {
-      case t: IgniteCheckedException if config.getBoolean("continue-on-external-config-error") =>
+      case t: IgniteCheckedException if getBoolean("continue-on-external-config-error") =>
         new IgniteGrid(buildConfiguration())
     }
   }
