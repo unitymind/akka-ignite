@@ -50,14 +50,10 @@ object Build extends MechaRepoBuild {
     mainClass in assembly := Some("com.cleawing.ignite.MainApp"),
     initialCommands in console :=
       """
-        |import com.cleawing.ignite.injector
+        |import com.cleawing.ignite.Injector
         |import _root_.akka.actor.ActorSystem
         |import com.cleawing.ignite.IgniteGrid
-        |import scaldi.akka.AkkaInjectable._
         |import com.cleawing.ignite.playground.{EchoActor, EchoActor2}
-        |import com.cleawing.ignite.Implicits.ActorSystemOps
-        |val grid = inject[IgniteGrid]
-        |val system = inject [ActorSystem]
       """.stripMargin
   )
 

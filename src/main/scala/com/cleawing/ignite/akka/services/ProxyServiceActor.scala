@@ -8,7 +8,7 @@ import scala.concurrent.Future
 class ProxyServiceActor extends Actor {
   import context.dispatcher
 
-  private implicit val grid = Injector.grid()
+  private implicit val grid = Injector.grid
 
   private val serviceName = isSystem match {
     case true => s"${self.path.toStringWithoutAddress}"

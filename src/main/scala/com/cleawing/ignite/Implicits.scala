@@ -16,7 +16,7 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 
 object Implicits {
   final implicit class ActorSystemOps(val system: ActorSystem) extends Injectable {
-    private val grid = inject [IgniteGrid]
+    private val grid = Injector.grid
     private def remoteServices() = grid.Services(grid.cluster().forRemotes()).withAsync()
     private def localServices() = grid.Services(grid.cluster().forLocal()).withAsync()
 

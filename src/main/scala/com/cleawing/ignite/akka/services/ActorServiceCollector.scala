@@ -17,8 +17,8 @@ private[ignite] class ActorServiceCollectorImpl(servicePath: String)
 
   override def init(ctx: ServiceContext) : Unit = {
     super.init(ctx)
-    system = Injector.actorSystem()
-    grid = Injector.grid()
+    system = Injector.system
+    grid = Injector.grid
   }
 
   def reply(pe: ProxyEnvelope) : Unit = {

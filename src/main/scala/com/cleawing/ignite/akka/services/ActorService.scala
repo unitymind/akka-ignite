@@ -23,7 +23,7 @@ case class ActorServiceImpl(clazz: Class[_], args: immutable.Seq[Any])
 
   override def init(ctx: ServiceContext) : Unit = {
     super.init(ctx)
-    system = Injector.actorSystem()
+    system = Injector.system
     service = system.actorOf(Props(clazz, args :_*))
     responders = new ConcurrentHashMap8[(UUID, String), ActorRef]
   }

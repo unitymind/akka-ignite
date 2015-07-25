@@ -13,7 +13,7 @@ class InboundServiceActor(serviceName: String, target: String, targetNodeId: UUI
     case reply => Future { proxy.reply(ProxyEnvelope(reply, target, targetNodeId)) }
   }
 
-  private val proxy = Injector.grid().Services()
+  private val proxy = Injector.grid.Services()
     .serviceProxy[ActorServiceCollector](s"$serviceName-$targetNodeId", classOf[ActorServiceCollector], false)
 }
 

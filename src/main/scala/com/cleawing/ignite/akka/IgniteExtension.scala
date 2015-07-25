@@ -1,7 +1,7 @@
 package com.cleawing.ignite.akka
 
 import akka.actor._
-import com.cleawing.ignite.{IgniteGrid, IgniteAdapter}
+import com.cleawing.ignite.{Injector, IgniteGrid, IgniteAdapter}
 import org.apache.ignite.configuration.IgniteConfiguration
 import scaldi.Injectable
 import scala.collection.concurrent
@@ -10,8 +10,8 @@ object IgniteExtension extends ExtensionId[IgniteExtensionImpl] with ExtensionId
   override def lookup() = IgniteExtension
   override def createExtension(system: ExtendedActorSystem) = {
     systems.put(system.name, system)
-    serviceGuardians.put(system.name, system.systemActorOf(ServiceGuardian(), "services"))
-    actorGuardians.put(system.name, system.actorOf(ServiceGuardian(), "ignite"))
+    serviceGuardians.put(system.name, system.systemActorOf(ServicesGuardian(), "services"))
+    actorGuardians.put(system.name, system.actorOf(ServicesGuardian(), "ignite"))
     new IgniteExtensionImpl(system)
   }
   override def get(system: ActorSystem): IgniteExtensionImpl = super.get(system)
@@ -38,9 +38,8 @@ object IgniteExtension extends ExtensionId[IgniteExtensionImpl] with ExtensionId
 }
 
 private[ignite] class IgniteExtensionImpl(val actorSystem: ExtendedActorSystem)
-  extends Extension with ExtensionAdapter with IgniteAdapter with Injectable {
-  import com.cleawing.ignite.injector
-  def configuration : IgniteConfiguration = inject [IgniteGrid] configuration
+  extends Extension with ExtensionAdapter with IgniteAdapter {
+  def configuration : IgniteConfiguration = Injector.grid.configuration
   val name : String = actorSystem.name
 
   // Just entry point in ExtensionAdapter
