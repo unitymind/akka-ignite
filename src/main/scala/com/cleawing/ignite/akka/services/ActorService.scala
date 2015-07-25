@@ -14,7 +14,7 @@ trait ActorService extends IgniteService {
   protected[ignite] def tell(en: ProxyEnvelope) : Unit
 }
 
-private[ignite] case class ActorServiceImpl(clazz: Class[_], args: immutable.Seq[Any])
+case class ActorServiceImpl(clazz: Class[_], args: immutable.Seq[Any])
   extends IgniteServiceImpl with ActorService {
 
   @transient protected var system : ActorSystem = _

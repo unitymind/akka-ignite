@@ -3,7 +3,11 @@ package com.cleawing.ignite.akka.services
 import akka.actor.{Props, Actor}
 import com.cleawing.ignite.Injector
 
-class OutboundServiceActor extends Actor {
+import scala.concurrent.Future
+
+class ProxyServiceActor extends Actor {
+  import context.dispatcher
+
   private implicit val grid = Injector.grid()
 
   private val serviceName = isSystem match {
@@ -16,7 +20,11 @@ class OutboundServiceActor extends Actor {
   private def isSystem = self.path.elements.head == "system"
 
   def receive = {
-    case message => proxy.tell(ProxyEnvelope(message, sender(), context.system, localNodeId))
+    case message =>
+      val source = sender()
+      Future {
+        proxy.tell(ProxyEnvelope(message, source, context.system, localNodeId))
+    }
   }
 
   override def postStop() : Unit = {
@@ -27,6 +35,6 @@ class OutboundServiceActor extends Actor {
   }
 }
 
-object OutboundServiceActor {
-  def apply() : Props = Props[OutboundServiceActor]
+object ProxyServiceActor {
+  def apply() : Props = Props[ProxyServiceActor]
 }

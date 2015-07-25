@@ -2,6 +2,7 @@ package com.cleawing.ignite.akka.dispatch
 
 import akka.actor.{ActorSystem, ActorRef}
 import akka.dispatch.{MessageQueue, ProducesMessageQueue, MailboxType}
+import com.cleawing.ignite.Injector
 import com.cleawing.ignite.akka.dispatch.MessageQueues.IgniteBoundedQueueBasedMessageQueue
 import com.cleawing.ignite.akka.{IgniteConfig, IgniteExtension}
 import com.typesafe.config.Config
@@ -25,12 +26,13 @@ class IgniteBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, _memoryMo
   final override def create(owner: Option[ActorRef], system: Option[ActorSystem]): MessageQueue = {
     (owner, system) match {
       case (Some(o), Some(s)) =>
-        implicit val ignite = IgniteExtension(s)
+        implicit val ignite = Injector.grid()
         val cfg = IgniteConfig.CollectionBuilder()
           .setCacheMode(CacheMode.LOCAL)
           .setMemoryMode(_memoryMode)
+          .setOffHeapMaxMemory(0)
           .build()
-        new IgniteBoundedQueueBasedMessageQueue(capacity, pushTimeOut, o.path.toSerializationFormat, cfg, ignite)
+        new IgniteBoundedQueueBasedMessageQueue(capacity, pushTimeOut, o.path.toSerializationFormat, cfg)
       case _ => throw new IllegalStateException("ActorRef and ActorSystem should be defined.")
     }
   }

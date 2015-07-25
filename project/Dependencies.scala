@@ -5,9 +5,8 @@ object Dependencies {
     val typesafeConfig  = "1.3.0"
     val scalaz          = "7.1.3"
     val ignite          = "1.3.2"
-    val akka            = "2.3.12"
+    val akka            = "2.4-M2"
     val akkaStreams     = "1.0"
-    val opRabbit        = "1.0.0-M9"
     val scaldi          = "0.5.6"
     val scalazScalaTest = "0.2.3"
     val scalaTest       = "2.2.5"
@@ -19,12 +18,12 @@ object Dependencies {
 
   lazy val ignite = Seq(
     "org.apache.ignite" % "ignite-core"   % Versions.ignite,
-    "org.apache.ignite" % "ignite-spring" % Versions.ignite,
-    "org.apache.ignite" % "ignite-scalar" % Versions.ignite
+    "org.apache.ignite" % "ignite-spring" % Versions.ignite
   )
 
   lazy val akka = Seq(
     "com.typesafe.akka" %% "akka-actor"   % Versions.akka,
+    "com.typesafe.akka" %% "akka-remote"   % Versions.akka,
     "com.typesafe.akka" %% "akka-testkit" % Versions.akka % "test"
   )
 
@@ -34,10 +33,6 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-http-experimental"           % Versions.akkaStreams,
     "com.typesafe.akka" %% "akka-stream-testkit-experimental" % Versions.akkaStreams % "test",
     "com.typesafe.akka" %% "akka-http-testkit-experimental"   % Versions.akkaStreams % "test"
-  )
-
-  lazy val opRabbit = Seq(
-    "com.spingo"            %% "op-rabbit-core" % Versions.opRabbit
   )
 
   lazy val scalaz = Seq(

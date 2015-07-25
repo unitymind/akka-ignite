@@ -3,7 +3,7 @@ package com.cleawing.ignite
 import java.util.concurrent.TimeUnit
 
 import _root_.akka.actor.{ActorRef, Props, ActorSystem}
-import com.cleawing.ignite.akka.services.{ActorServiceCollector, OutboundServiceActor, ActorService}
+import com.cleawing.ignite.akka.services.{ProxyServiceActor, ActorServiceCollector, ActorService}
 import com.typesafe.config.Config
 import org.apache.ignite.IgniteServices
 import org.apache.ignite.cache.CacheMemoryMode
@@ -21,7 +21,7 @@ object Implicits {
     private def localServices() = grid.Services(grid.cluster().forLocal()).withAsync()
 
     def serviceOf(props: Props, name: String, totalCnt: Int, maxPerNodeCnt: Int) : ActorRef = {
-      val ref = system.actorOf(OutboundServiceActor(), name)
+      val ref = system.actorOf(ProxyServiceActor(), name)
       val serviceName = s"${ref.path.toSerializationFormat.replace(system.toString, "")}"
       remoteServices()
         .deployMultiple(serviceName, ActorService(props.clazz, props.args:_*), totalCnt, maxPerNodeCnt)

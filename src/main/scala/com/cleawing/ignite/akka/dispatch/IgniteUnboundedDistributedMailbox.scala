@@ -3,6 +3,7 @@ package com.cleawing.ignite.akka.dispatch
 import akka.actor.{ActorRef, ActorSystem}
 import akka.dispatch.{MailboxType, MessageQueue, ProducesMessageQueue}
 import com.cleawing.ignite.Implicits.ConfigOps
+import com.cleawing.ignite.Injector
 import com.cleawing.ignite.akka.dispatch.MessageQueues.IgniteUnboundedQueueBasedMessageQueue
 import com.cleawing.ignite.akka.{IgniteConfig, IgniteExtension}
 import com.typesafe.config.Config
@@ -18,13 +19,14 @@ case class IgniteUnboundedDistributedMailbox(_memoryMode: CacheMemoryMode, _back
   final override def create(owner: Option[ActorRef], system: Option[ActorSystem]): MessageQueue = {
     (owner, system) match {
       case (Some(o), Some(s)) =>
-        implicit val ignite = IgniteExtension(s)
+        implicit val ignite = Injector.grid()
         val cfg = IgniteConfig.CollectionBuilder()
           .setCacheMode(CacheMode.PARTITIONED)
           .setMemoryMode(_memoryMode)
           .setBackups(_backups)
+          .setOffHeapMaxMemory(0)
           .build()
-        new IgniteUnboundedQueueBasedMessageQueue(o.path.toStringWithoutAddress, cfg, ignite)
+        new IgniteUnboundedQueueBasedMessageQueue(o.path.toStringWithoutAddress, cfg)
       case _ => throw new IllegalStateException("ActorRef and ActorSystem should be defined.")
     }
   }

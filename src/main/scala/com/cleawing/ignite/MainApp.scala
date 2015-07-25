@@ -5,8 +5,8 @@ import scaldi.akka.AkkaInjectable._
 
 object MainApp extends App {
   try {
-    val system = inject [ActorSystem]
     val igniteGrid = inject [IgniteGrid]
+    val system = inject [ActorSystem]
   } catch {
     case t: Throwable =>
       injector.destroy()

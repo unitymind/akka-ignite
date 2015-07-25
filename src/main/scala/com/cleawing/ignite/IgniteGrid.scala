@@ -36,6 +36,7 @@ private[ignite] object IgniteGridFactory {
         .setNetworkTimeout(config.getLong("network.timeout"))
         .setNetworkSendRetryDelay(config.getLong("network.send-retry-delay"))
         .setNetworkSendRetryCount(config.getInt("network.send-retry-count"))
+        .setLocalHost(if (config.getIsNull("network.localhost")) null else config.getString("network.localhost"))
     }
 
     try {

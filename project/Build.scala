@@ -44,8 +44,7 @@ object Build extends MechaRepoBuild {
       "GridGain External Repository" at "http://www.gridgainsystems.com/nexus/content/repositories/external"
     ),
     libraryDependencies ++= superRepoDependencies("akka-ignite") ++ Dependencies.ignite
-      ++ Dependencies.akka ++ Dependencies.akkaStream
-      ++ Dependencies.opRabbit ++ Dependencies.scalaz
+      ++ Dependencies.akka ++ Dependencies.akkaStream ++ Dependencies.scalaz
       ++ Seq(Dependencies.typesafeConfig, Dependencies.scaldi, Dependencies.scalaTest),
     assemblyMergeStrategy in assembly := customMergeStrategy,
     mainClass in assembly := Some("com.cleawing.ignite.MainApp"),
@@ -55,9 +54,10 @@ object Build extends MechaRepoBuild {
         |import _root_.akka.actor.ActorSystem
         |import com.cleawing.ignite.IgniteGrid
         |import scaldi.akka.AkkaInjectable._
-        |val system = inject [ActorSystem]
+        |import com.cleawing.ignite.playground.{EchoActor, EchoActor2}
+        |import com.cleawing.ignite.Implicits.ActorSystemOps
         |val grid = inject[IgniteGrid]
-        |def destroy() = injector.destroy()
+        |val system = inject [ActorSystem]
       """.stripMargin
   )
 

@@ -4,10 +4,13 @@ import java.util.UUID
 import akka.actor.{Props, Actor}
 import com.cleawing.ignite.Injector
 
-class InboundServiceActor(serviceName: String, target: String, targetNodeId: UUID) extends Actor {
+import scala.concurrent.Future
 
-  def receive = {
-    case reply => proxy.reply(ProxyEnvelope(reply, target, targetNodeId))
+class InboundServiceActor(serviceName: String, target: String, targetNodeId: UUID) extends Actor {
+  import context.dispatcher
+
+  def receive =  {
+    case reply => Future { proxy.reply(ProxyEnvelope(reply, target, targetNodeId)) }
   }
 
   private val proxy = Injector.grid().Services()

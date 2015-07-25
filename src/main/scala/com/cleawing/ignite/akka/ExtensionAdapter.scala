@@ -1,24 +1,18 @@
 package com.cleawing.ignite.akka
 
-import com.cleawing.ignite.playground.{SourceProxyActor, RabbitSourceProxyActor}
+import com.cleawing.ignite.playground.SourceProxyActor
 import org.apache.ignite._
 import org.apache.ignite.configuration._
 import org.apache.ignite.internal.IgnitionEx
 import org.apache.ignite.lifecycle.{LifecycleBean, LifecycleEventType}
 
-import akka.actor.{Props, ActorRef, ExtendedActorSystem}
+import akka.actor.{ActorSystem, Props, ActorRef, ExtendedActorSystem}
 
 private[ignite] trait ExtensionAdapter {
   import com.cleawing.ignite.akka.LocalNodeWatcher.Restart
 
   protected def actorSystem: ExtendedActorSystem
 
-  def actorOfRabbit(props: Props): ActorRef = {
-    actorSystem.actorOf(RabbitSourceProxyActor(props))
-  }
-  def actorOfRabbit(props: Props, name: String) : ActorRef = {
-    actorSystem.actorOf(RabbitSourceProxyActor(props), name)
-  }
   def actorOfIgnite(props: Props): ActorRef = {
     actorSystem.actorOf(SourceProxyActor(props))
   }
@@ -32,6 +26,7 @@ private[ignite] trait ExtensionAdapter {
   }
 
   def shutdown() : Unit = {
+    ActorSystem("name")
     actorSystem.shutdown()
   }
 

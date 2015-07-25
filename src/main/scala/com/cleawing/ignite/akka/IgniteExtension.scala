@@ -40,8 +40,7 @@ object IgniteExtension extends ExtensionId[IgniteExtensionImpl] with ExtensionId
 private[ignite] class IgniteExtensionImpl(val actorSystem: ExtendedActorSystem)
   extends Extension with ExtensionAdapter with IgniteAdapter with Injectable {
   import com.cleawing.ignite.injector
-
-  def configuration : IgniteConfiguration = (inject [IgniteGrid]).configuration
+  def configuration : IgniteConfiguration = inject [IgniteGrid] configuration
   val name : String = actorSystem.name
 
   // Just entry point in ExtensionAdapter
