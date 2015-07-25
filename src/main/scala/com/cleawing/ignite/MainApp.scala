@@ -2,10 +2,10 @@ package com.cleawing.ignite
 
 object MainApp extends App {
   try {
-    Injector().initNonLazy()
+    init()
   } catch {
     case t: Throwable =>
-      Injector().destroy()
+      destroy()
       throw t
   }
 }

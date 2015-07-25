@@ -3,7 +3,6 @@ package com.cleawing.ignite.akka.dispatch
 import akka.actor.{ActorRef, ActorSystem}
 import akka.dispatch.{MailboxType, MessageQueue, ProducesMessageQueue}
 import com.cleawing.ignite.Implicits.ConfigOps
-import com.cleawing.ignite.Injector
 import com.cleawing.ignite.akka.dispatch.MessageQueues.IgniteBoundedQueueBasedMessageQueue
 import com.cleawing.ignite.akka.IgniteConfig
 import com.typesafe.config.Config
@@ -13,6 +12,8 @@ import scala.concurrent.duration.FiniteDuration
 
 class IgniteBoundedDistributedMailbox(capacity: Int, pushTimeOut: FiniteDuration, _memoryMode: CacheMemoryMode, _backups : Int)
   extends MailboxType with ProducesMessageQueue[IgniteBoundedQueueBasedMessageQueue] {
+
+  import com.cleawing.ignite.grid
   
   def this(settings: ActorSystem.Settings, config: Config) = this(
     config.getInt("mailbox-capacity"),
@@ -27,7 +28,7 @@ class IgniteBoundedDistributedMailbox(capacity: Int, pushTimeOut: FiniteDuration
   final override def create(owner: Option[ActorRef], system: Option[ActorSystem]): MessageQueue = {
     (owner, system) match {
       case (Some(o), Some(s)) =>
-        implicit val ignite = Injector.grid
+        implicit val ignite = grid
         val cfg = IgniteConfig.CollectionBuilder()
           .setCacheMode(CacheMode.PARTITIONED)
           .setMemoryMode(_memoryMode)

@@ -1,50 +1,13 @@
 package com.cleawing.ignite
 
-import _root_.akka.actor.{ActorContext, Props, ActorRef, Actor}
-import com.cleawing.ignite.playground.SourceProxyActor
-
-import org.apache.ignite.IgniteDataStreamer
+import _root_.akka.actor.{ActorRef, Actor}
 
 package object akka {
   trait Ignition extends { this: Actor =>
-    implicit final protected val ignite = IgniteExtension(context.system)
-
-    def actorOf(props: Props) : ActorRef = {
-      context.actorOf(SourceProxyActor(props))
-    }
-    def actorOf(props: Props, name: String) : ActorRef = {
-      context.actorOf(SourceProxyActor(props), name)
-    }
+    val ignite : ActorRef = com.cleawing.ignite.ignite()
   }
 
-  trait Streaming {
-    import com.cleawing.ignite.akka.Streaming.Chunk
+  object Ignition {
 
-    def close(streamer: IgniteDataStreamer[Any, Any]) : Unit = {
-      streamer.flush()
-      streamer.close(true)
-    }
-
-    def fireSubcribers[K, V](chunk: Seq[Chunk[K,  V]], subscribers: Set[ActorRef]) : Unit = {
-      subscribers.foreach(_ ! chunk)
-    }
-  }
-
-  object Streaming {
-    case object Start
-    case object Pause
-    case object Flush
-    case object Stop
-    case class Subscribe(ref: ActorRef)
-    case class Unsubscribe(ref: ActorRef)
-    case class Chunk[K, V](key: K, value: V)
-
-    sealed trait State
-    case object Idle extends State
-    case object Active extends State
-
-    sealed trait Data
-    case object Uninitialized extends Data
-    case class StreamEdge[K, V](streamer: IgniteDataStreamer[K, V], subscribers: Set[ActorRef] = Set.empty[ActorRef]) extends Data
   }
 }

@@ -50,19 +50,9 @@ object Build extends MechaRepoBuild {
     mainClass in assembly := Some("com.cleawing.ignite.MainApp"),
     initialCommands in console :=
       """
-        |import com.cleawing.ignite.Injector
-        |import _root_.akka.actor.ActorSystem
-        |import com.cleawing.ignite.IgniteGrid
-        |import com.cleawing.ignite.playground.{EchoActor, EchoActor2}
+        |import com.cleawing.ignite._
       """.stripMargin
   )
-
-//  import com.cleawing.ignite.akka.IgniteExtension
-//  import scala.collection.JavaConversions._
-//  import com.cleawing.ignite.Implicits._
-//
-//  val system = ActorSystem()
-//  implicit val ignite = IgniteExtension(system)
 
   def repoName = "akka-ignite"
 

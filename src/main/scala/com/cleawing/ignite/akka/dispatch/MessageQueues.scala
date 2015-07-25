@@ -2,8 +2,8 @@ package com.cleawing.ignite.akka.dispatch
 
 import akka.actor.{ExtendedActorSystem, ActorRef}
 import akka.dispatch.{UnboundedQueueBasedMessageQueue, MessageQueue, Envelope, BoundedQueueBasedMessageQueue}
-import com.cleawing.ignite.Injector
 import org.apache.ignite.configuration.CollectionConfiguration
+import com.cleawing.ignite
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -14,14 +14,14 @@ object MessageQueues {
   {
     import akka.serialization.JavaSerializer.currentSystem
 
-    final val queue = Injector.grid.Collection.queue[Envelope](queueName, capacity, cfg)
+    final val queue = ignite.grid.Collection.queue[Envelope](queueName, capacity, cfg)
 
     override def enqueue(receiver: ActorRef, handle: Envelope): Unit = {
-      currentSystem.withValue(Injector.system.asInstanceOf[ExtendedActorSystem]) { super.enqueue(receiver, handle) }
+      currentSystem.withValue(ignite.system.asInstanceOf[ExtendedActorSystem]) { super.enqueue(receiver, handle) }
     }
 
     override def dequeue(): Envelope = {
-      currentSystem.withValue(Injector.system.asInstanceOf[ExtendedActorSystem]) { super.dequeue() }
+      currentSystem.withValue(ignite.system.asInstanceOf[ExtendedActorSystem]) { super.dequeue() }
     }
 
     override def cleanUp(owner: ActorRef, deadLetters: MessageQueue): Unit = {
@@ -35,14 +35,14 @@ object MessageQueues {
 
     import akka.serialization.JavaSerializer.currentSystem
 
-    final val queue = Injector.grid.Collection.queue[Envelope](queueName, 0, cfg)
+    final val queue = ignite.grid.Collection.queue[Envelope](queueName, 0, cfg)
 
     override def enqueue(receiver: ActorRef, handle: Envelope): Unit = {
-      currentSystem.withValue(Injector.system.asInstanceOf[ExtendedActorSystem]) { super.enqueue(receiver, handle) }
+      currentSystem.withValue(ignite.system.asInstanceOf[ExtendedActorSystem]) { super.enqueue(receiver, handle) }
     }
 
     override def dequeue(): Envelope = {
-      currentSystem.withValue(Injector.system.asInstanceOf[ExtendedActorSystem]) { super.dequeue() }
+      currentSystem.withValue(ignite.system.asInstanceOf[ExtendedActorSystem]) { super.dequeue() }
     }
 
     override def cleanUp(owner: ActorRef, deadLetters: MessageQueue): Unit = {

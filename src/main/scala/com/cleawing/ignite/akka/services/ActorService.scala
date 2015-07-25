@@ -3,15 +3,14 @@ package com.cleawing.ignite.akka.services
 import java.util.UUID
 
 import akka.actor.{Props, ActorRef, ActorSystem}
-import com.cleawing.ignite.Injector
 import org.apache.ignite.services.ServiceContext
 import org.jsr166.ConcurrentHashMap8
 
+import com.cleawing.ignite
 import scala.collection.immutable
 
 trait ActorService extends IgniteService {
   protected def system : ActorSystem
-  protected[ignite] def tell(en: ProxyEnvelope) : Unit
 }
 
 case class ActorServiceImpl(clazz: Class[_], args: immutable.Seq[Any])
@@ -23,20 +22,9 @@ case class ActorServiceImpl(clazz: Class[_], args: immutable.Seq[Any])
 
   override def init(ctx: ServiceContext) : Unit = {
     super.init(ctx)
-    system = Injector.system
+    system = ignite.system
     service = system.actorOf(Props(clazz, args :_*))
     responders = new ConcurrentHashMap8[(UUID, String), ActorRef]
-  }
-
-  protected[ignite] def tell(pe: ProxyEnvelope) : Unit = {
-    val responder = if (responders.containsKey((pe.nodeId, pe.sender))) {
-      responders.get((pe.nodeId, pe.sender))
-    } else {
-      val ref = system.actorOf(InboundServiceActor(name, pe.sender, pe.nodeId))
-      responders.put((pe.nodeId, pe.sender), ref)
-      ref
-    }
-    service.tell(pe.message, responder)
   }
 
   override def cancel(ctx: ServiceContext) : Unit = {

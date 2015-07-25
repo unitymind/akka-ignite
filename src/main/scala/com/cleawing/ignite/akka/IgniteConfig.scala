@@ -1,7 +1,6 @@
 package com.cleawing.ignite.akka
 
 import com.cleawing.ignite.IgniteAdapter
-import com.cleawing.ignite.akka.services.ProxyEnvelope
 import org.apache.ignite.cache.CacheMode
 import org.apache.ignite.cache.CacheMemoryMode
 import org.apache.ignite.cache.CacheAtomicityMode
