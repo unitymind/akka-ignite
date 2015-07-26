@@ -7,7 +7,7 @@ import org.apache.ignite.internal.IgnitionEx
 import scala.collection.JavaConverters._
 
 class IgniteGrid private[ignite] (val configuration: IgniteConfiguration) extends IgniteAdapter {
-  def shutdown(cancel: Boolean = false) : Unit = stop(cancel)
+  def shutdown(cancel: Boolean = true) : Unit = stop(cancel)
 }
 
 private[ignite] object IgniteGridFactory {

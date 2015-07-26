@@ -3,7 +3,6 @@ package com.cleawing.ignite.akka
 import akka.actor.{Props, Actor}
 
 class IgniteGuardian extends Actor {
-
   override def preStart(): Unit = {
     context.actorOf(ServicesGuardian(), "services")
   }
@@ -14,4 +13,3 @@ class IgniteGuardian extends Actor {
 object IgniteGuardian {
   def apply() = Props[IgniteGuardian]
 }
-

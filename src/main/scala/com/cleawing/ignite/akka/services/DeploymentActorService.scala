@@ -17,20 +17,25 @@ class DeploymentActorServiceImpl(props: Props, parent: Option[String])
   extends IgniteServiceImpl with DeploymentActorService {
   import DeploymentActorService._
 
-  private var localCache : IgniteCache[UUID, Descriptor] = _
+  @transient private var localCache : IgniteCache[UUID, Descriptor] = _
+  @transient private var deploymentCache : IgniteCache[UUID, String] = _
 
   override def init(ctx: ServiceContext) : Unit = {
     super.init(ctx)
     localCache = ignite.grid().Cache
       .getOrCreate[UUID, Descriptor](DeploymentActorService.localCacheCfg.setName(s"akka_${resolveKind(parent)}_services"))
+    deploymentCache = ignite.grid().Cache
+      .getOrCreate[UUID, String](DeploymentActorService.deploymentCacheCfg.setName(name))
   }
 
   override def execute(ctx: ServiceContext) : Unit = {
     localCache.put(executionId, (props, name, parent))
+    deploymentCache.put(executionId, path().toSerializationFormat)
   }
 
   override def cancel(ctx: ServiceContext) : Unit = {
     localCache.remove(executionId)
+    deploymentCache.remove(executionId)
   }
 
   def path() : ActorPath = {
