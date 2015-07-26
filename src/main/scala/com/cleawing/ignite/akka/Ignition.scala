@@ -1,27 +1,40 @@
 package com.cleawing.ignite.akka
 
 
-import _root_.akka.actor.{ActorSelection, Props, ActorContext, Actor}
+import akka.actor._
 import com.cleawing.ignite
-import com.cleawing.ignite.akka.services.ActorService
+import com.cleawing.ignite.akka.services.{DeploymentActorService, ServiceProxyRouter}
 
 trait Ignition extends { this: Actor =>
+  import Ignition._
   val ignition = ignite.ignite()
   private def remote() = ignite.grid().Services(ignite.grid().cluster().forRemotes())
-  private def proxy(name: String) = remote().serviceProxy[ActorService](name, classOf[ActorService], false)
 
-  final implicit class ActorContextOps(val system: ActorContext) {
-    def serviceOf(props: Props, name: String, totalCnt: Int = 1, maxPerNodeCnt: Int = 1) : ActorSelection = {
-      val selfPath = self.path.toSerializationFormat
-        .replace(
-          ignite.system().toString + "/",
-          ignite.rootPath().toSerializationFormat)
-      remote().deployMultiple(selfPath + s"/$name", ActorService(props, Some(selfPath)), totalCnt, maxPerNodeCnt)
-      context.system.actorSelection(proxy(selfPath + s"/$name").path())
+  final implicit class ActorContextOps(val context: ActorContext) {
+    def serviceOf(props: Props, name: String, totalCnt: Int = 1, maxPerNodeCnt: Int = 1) : ActorRef = {
+      val ref = context.actorOf(ServiceProxyRouter())
+      remote().deployMultiple(
+        buildRemotePathString(ref.path),
+        DeploymentActorService(props, Some(buildRemotePathString(self.path))),
+        totalCnt,
+        maxPerNodeCnt
+      )
+      ref
     }
+
+//    def serviceOf(props: Props, name: String, totalCnt: Int = 1, maxPerNodeCnt: Int = 1) : ServiceSelection = {
+//      val selfPath = buildRemotePathString(self.path)
+//      remote().deployMultiple(selfPath + s"/$name", DeploymentActorService(props, Some(selfPath)), totalCnt, maxPerNodeCnt)
+//      ServiceSelection(selfPath + s"/$name")(context)
+//    }
   }
 }
 
 object Ignition {
-
+  def buildRemotePathString(path: ActorPath) : String = {
+    path.toSerializationFormat
+      .replace(
+        ignite.system().toString + "/",
+        ignite.rootPath.toSerializationFormat)
+  }
 }

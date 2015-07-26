@@ -21,7 +21,7 @@ package object ignite {
   def system() : ActorSystem = inject [ActorSystem]
   def extended() : ExtendedActorSystem = system().asInstanceOf[ExtendedActorSystem]
   def ignite() : ActorRef = inject [ActorRef]('igniteGuardian)
-  def rootPath() : ActorPath = ActorPath.fromString(extended().provider.getDefaultAddress.toString)
+  lazy val rootPath : ActorPath = ActorPath.fromString(extended().provider.getDefaultAddress.toString)
 
   private class IgniteModule extends Module {
     bind [IgniteGrid] to IgniteGridFactory(inject [Config]("ignite")) destroyWith { _ =>

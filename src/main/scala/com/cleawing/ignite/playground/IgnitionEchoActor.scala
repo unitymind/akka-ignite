@@ -1,19 +1,18 @@
 package com.cleawing.ignite.playground
 
-import akka.actor.{ActorSelection, Props, Actor}
+import akka.actor.{ActorRef, Props, Actor}
 import com.cleawing.ignite.akka.Ignition
+import com.cleawing.ignite.akka.services.ServiceSelection
 
 class IgnitionEchoActor extends Actor with Ignition {
-
-  var echo : ActorSelection = _
+  var echo : ActorRef = _
   override def preStart(): Unit = {
-    echo = context.serviceOf(SimpleEchoActor(), "echo", 50, 0)
-    println(echo)
+    echo = context.serviceOf(SimpleEchoActor(), "echo", 100, 0)
   }
 
   def receive = {
     case x =>
-      echo forward x
+      echo.forward(x)
   }
 }
 
