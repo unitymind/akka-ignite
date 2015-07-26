@@ -25,5 +25,9 @@
     <!--
         Alter configuration below as needed.
     -->
-    <bean id="grid.cfg" class="org.apache.ignite.configuration.IgniteConfiguration"/>
+    <bean id="grid.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
+        <property name="marshaller">
+            <bean class="org.apache.ignite.marshaller.jdk.JdkMarshaller" />
+        </property>
+    </bean>
 </beans>

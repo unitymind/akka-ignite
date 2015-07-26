@@ -42,8 +42,6 @@ private[ignite] object IgniteGridFactory {
         .setLocalHost(if (getIsNull("network.localhost")) null else getString("network.localhost"))
     }
 
-    new sys.SystemProperties update("IGNITE_QUIET", if(getBoolean("quiet")) "true" else "false")
-
     try {
       if (hasPath("external-config-path")) {
         val cfg = IgnitionEx.loadConfiguration(getString("external-config-path")).get1()

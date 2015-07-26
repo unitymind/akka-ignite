@@ -45,7 +45,7 @@ object Build extends MechaRepoBuild {
     ),
     libraryDependencies ++= superRepoDependencies("akka-ignite") ++ Dependencies.ignite
       ++ Dependencies.akka ++ Dependencies.akkaStream ++ Dependencies.scalaz
-      ++ Seq(Dependencies.typesafeConfig, Dependencies.scaldi, Dependencies.scalaTest),
+      ++ Seq(Dependencies.typesafeConfig, Dependencies.scaldi, Dependencies.fst, Dependencies.scalaTest),
     assemblyMergeStrategy in assembly := customMergeStrategy,
     mainClass in assembly := Some("com.cleawing.ignite.MainApp"),
     initialCommands in console :=

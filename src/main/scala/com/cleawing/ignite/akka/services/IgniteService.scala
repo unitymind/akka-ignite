@@ -10,8 +10,8 @@ trait IgniteService {
 }
 
 abstract class IgniteServiceImpl extends Service with IgniteService {
-  protected var _executionId : UUID = _
-  protected var _name : String = _
+  private var _executionId : UUID = _
+  private var _name : String = _
 
   def init(ctx: ServiceContext) : Unit = {
     _executionId = ctx.executionId()
