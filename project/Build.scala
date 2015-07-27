@@ -51,6 +51,7 @@ object Build extends MechaRepoBuild {
     initialCommands in console :=
       """
         |import com.cleawing.ignite._
+        |import com.cleawing.ignite.playground.IgnitionEchoActor
       """.stripMargin
   )
 
