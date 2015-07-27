@@ -21,12 +21,6 @@ trait Ignition extends { this: Actor =>
       )
       ref
     }
-
-//    def serviceOf(props: Props, name: String, totalCnt: Int = 1, maxPerNodeCnt: Int = 1) : ServiceSelection = {
-//      val selfPath = buildRemotePathString(self.path)
-//      remote().deployMultiple(selfPath + s"/$name", DeploymentActorService(props, Some(selfPath)), totalCnt, maxPerNodeCnt)
-//      ServiceSelection(selfPath + s"/$name")(context)
-//    }
   }
 }
 
