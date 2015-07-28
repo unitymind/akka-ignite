@@ -13,7 +13,7 @@ class IgniteGrid private[ignite] (val configuration: IgniteConfiguration) extend
 private[ignite] object IgniteGridFactory {
   import Implicits.ConfigOps
 
-  def apply(config: Config) : IgniteGrid = {
+  def apply(config: Config, name: String) : IgniteGrid = {
     import config._
 
     def buildConfiguration() : IgniteConfiguration = {
@@ -23,7 +23,7 @@ private[ignite] object IgniteGridFactory {
           .get1().toArray.apply(0).asInstanceOf[IgniteConfiguration]
       } else new IgniteConfiguration())
 
-        .setGridName(getString("name"))
+        .setGridName(name)
         .setClientMode(getBoolean("client-mode"))
 
         .setPeerClassLoadingEnabled(getBoolean("peer-class-loading.enabled"))
@@ -42,17 +42,19 @@ private[ignite] object IgniteGridFactory {
         .setLocalHost(if (getIsNull("network.localhost")) null else getString("network.localhost"))
     }
 
-    try {
+    val cfg = try {
       if (hasPath("external-config-path")) {
         val cfg = IgnitionEx.loadConfiguration(getString("external-config-path")).get1()
         if (cfg.getGridName == null) cfg.setGridName(getString("name"))
-        new IgniteGrid(cfg)
+        cfg
       } else {
-        new IgniteGrid(buildConfiguration())
+        buildConfiguration()
       }
     } catch {
       case t: IgniteCheckedException if getBoolean("continue-on-external-config-error") =>
-        new IgniteGrid(buildConfiguration())
+        buildConfiguration()
     }
+
+    new IgniteGrid(cfg)
   }
 }

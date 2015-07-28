@@ -7,14 +7,11 @@ object Dependencies {
     val ignite          = "1.3.2"
     val akka            = "2.4-M2"
     val akkaStreams     = "1.0"
-    val scaldi          = "0.5.6"
     val scalazScalaTest = "0.2.3"
     val scalaTest       = "2.2.5"
   }
 
   lazy val typesafeConfig = "com.typesafe" % "config" % Versions.typesafeConfig
-
-  lazy val scaldi = "org.scaldi" %% "scaldi-akka" % Versions.scaldi
 
   lazy val ignite = Seq(
     "org.apache.ignite" % "ignite-core"   % Versions.ignite,

@@ -1,5 +1,6 @@
 package com.cleawing.ignite
 
+import java.util.UUID
 import java.util.concurrent.ExecutorService
 
 import org.apache.ignite._
@@ -19,6 +20,8 @@ trait IgniteAdapter {
     case IgniteState.STARTED => Ignition.ignite(configuration.getGridName)
     case _ => Ignition.start(configuration)
   }
+
+  def localNodeId : UUID = cluster().localNode().id
 
   def log() : IgniteLogger = ignite.log()
   def cluster() : IgniteCluster = ignite.cluster()
@@ -105,5 +108,8 @@ trait IgniteAdapter {
   def plugin[T <: IgnitePlugin](name: String) : T = ignite.plugin(name)
   def affinity[K](cacheName: String) : Affinity[K] = ignite.affinity(cacheName)
   def state() : IgniteState = Ignition.state(configuration.getGridName)
-  def stop(cancel: Boolean) : Unit = Ignition.stop(configuration.getGridName, cancel)
+  def stop(cancel: Boolean) : Unit = {
+    if (state() == IgniteState.STARTED)
+      Ignition.stop(configuration.getGridName, cancel)
+  }
 }

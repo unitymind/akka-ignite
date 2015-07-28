@@ -3,19 +3,20 @@ package com.cleawing.ignite
 import java.util.concurrent.TimeUnit
 
 import _root_.akka.actor.ActorSystem
+import com.cleawing.ignite.akka.IgniteExtension
 import com.typesafe.config.Config
 import org.apache.ignite.IgniteServices
 import org.apache.ignite.cache.CacheMemoryMode
 import org.apache.ignite.configuration.DeploymentMode
 import org.apache.ignite.services.{Service, ServiceConfiguration, ServiceDescriptor}
-import scaldi.Injectable
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 
 object Implicits {
-  final implicit class ActorSystemOps(val system: ActorSystem) extends Injectable {
+  final implicit class ActorSystemOps(val system: ActorSystem) {
+    val grid = IgniteExtension(system)
     private def remoteServices() = grid.Services(grid.cluster().forRemotes()).withAsync()
     private def localServices() = grid.Services(grid.cluster().forLocal()).withAsync()
 

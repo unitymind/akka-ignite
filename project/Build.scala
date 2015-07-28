@@ -45,13 +45,18 @@ object Build extends MechaRepoBuild {
     ),
     libraryDependencies ++= superRepoDependencies("akka-ignite") ++ Dependencies.ignite
       ++ Dependencies.akka ++ Dependencies.akkaStream ++ Dependencies.scalaz
-      ++ Seq(Dependencies.typesafeConfig, Dependencies.scaldi, Dependencies.scalaTest),
+      ++ Seq(Dependencies.typesafeConfig, Dependencies.scalaTest),
     assemblyMergeStrategy in assembly := customMergeStrategy,
     mainClass in assembly := Some("com.cleawing.ignite.MainApp"),
     initialCommands in console :=
       """
-        |import com.cleawing.ignite._
-        |import com.cleawing.ignite.playground.IgnitionEchoActor
+        |import _root_.akka.actor.ActorSystem
+        |import com.cleawing.ignite.akka.IgniteExtension
+        |import java.util.UUID
+        |import com.cleawing.ignite.akka.remote.Utils.HostPort
+        |import org.apache.ignite.cache.CachePeekMode
+        |val system = ActorSystem()
+        |val grid = IgniteExtension(system)
       """.stripMargin
   )
 

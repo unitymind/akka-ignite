@@ -1,11 +1,7 @@
 package com.cleawing.ignite
 
+import _root_.akka.actor.ActorSystem
+
 object MainApp extends App {
-  try {
-    init()
-  } catch {
-    case t: Throwable =>
-      destroy()
-      throw t
-  }
+  val system = ActorSystem("default")
 }

@@ -5,6 +5,7 @@ import javax.cache.event.{EventType, CacheEntryEvent, CacheEntryUpdatedListener}
 
 import akka.actor.{Actor, Props}
 import com.cleawing.ignite
+import com.cleawing.ignite.akka.Ignition
 import com.cleawing.ignite.akka.services.DeploymentActorService._
 import org.apache.ignite.cache.query.{ScanQuery, ContinuousQuery}
 import scala.collection.JavaConversions._
@@ -20,8 +21,8 @@ object ServicesGuardian {
   def apply() : Props = Props[ServicesGuardian]
 }
 
-class UserGuardian extends Actor {
-  private val localCache = ignite.grid().Cache.getOrCreate[UUID, Descriptor](localCacheCfg.setName("akka_user_services"))
+class UserGuardian extends Actor with Ignition {
+  private val localCache = grid.Cache.getOrCreate[UUID, Descriptor](localCacheCfg.setName("akka_user_services"))
 
   private val qry = new ContinuousQuery[UUID, Descriptor]
     .setInitialQuery(new ScanQuery[UUID, Descriptor]())
