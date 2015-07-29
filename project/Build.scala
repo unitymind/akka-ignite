@@ -55,6 +55,8 @@ object Build extends MechaRepoBuild {
         |import java.util.UUID
         |import com.cleawing.ignite.akka.remote.Utils.HostPort
         |import org.apache.ignite.cache.CachePeekMode
+        |import com.cleawing.ignite.playground.IgnitionEchoActor
+        |import com.cleawing.ignite.akka.services.DeploymentActorService._
         |val system = ActorSystem()
         |val grid = IgniteExtension(system)
       """.stripMargin

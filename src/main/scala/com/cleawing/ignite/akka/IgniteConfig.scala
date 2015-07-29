@@ -1,6 +1,5 @@
 package com.cleawing.ignite.akka
 
-import com.cleawing.ignite.IgniteAdapter
 import org.apache.ignite.cache.CacheMode
 import org.apache.ignite.cache.CacheMemoryMode
 import org.apache.ignite.cache.CacheAtomicityMode
@@ -9,8 +8,8 @@ import org.apache.ignite.configuration.CollectionConfiguration
 import org.apache.ignite.lang.IgnitePredicate
 
 object IgniteConfig {
-  class CollectionBuilder()(implicit ignite: IgniteAdapter) {
-    private val cfg = ignite.Collection.config()
+  class CollectionBuilder() {
+    private val cfg = new CollectionConfiguration()
 
     def setAtomicityMode(atomicityMode: CacheAtomicityMode) : this.type  = {
       cfg.setAtomicityMode(atomicityMode)
@@ -51,6 +50,6 @@ object IgniteConfig {
   }
 
   object CollectionBuilder {
-    def apply()(implicit ignite: IgniteAdapter) = new CollectionBuilder()
+    def apply() = new CollectionBuilder()
   }
 }

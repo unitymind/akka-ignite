@@ -9,8 +9,8 @@ trait Ignition extends { this: Actor =>
   def buildRemotePathString(path: ActorPath) : String = {
     path.toSerializationFormat
       .replace(
-        context.system.toString + "/",
-        context.system.rootPath.toSerializationFormat)
+        context.system.toString,
+        s"${grid.cluster().localNode().id}@")
   }
 
   final implicit class ActorSystemOps(val system: ActorSystem) {
@@ -18,13 +18,13 @@ trait Ignition extends { this: Actor =>
   }
 
   final implicit class ActorContextOps(val context: ActorContext) {
-    private def remote() = grid.Services(grid.cluster().forRemotes())
+    private def remote() = grid.Services(grid.cluster().forRemotes()).withAsync()
 
     def serviceOf(props: Props, name: String, totalCnt: Int = 1, maxPerNodeCnt: Int = 1) : ActorRef = {
-      val ref = context.actorOf(ServiceProxyRouter())
+      val ref = context.actorOf(ServiceProxyRouter(), name)
       remote().deployMultiple(
         buildRemotePathString(ref.path),
-        DeploymentActorService(props, Some(buildRemotePathString(self.path))),
+        DeploymentActorService(props),
         totalCnt,
         maxPerNodeCnt
       )

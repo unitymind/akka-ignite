@@ -6,7 +6,7 @@ import com.cleawing.ignite.akka.Ignition
 class IgnitionEchoActor extends Actor with Ignition {
   var echo : ActorRef = _
   override def preStart(): Unit = {
-    echo = context.serviceOf(SimpleEchoActor(), "echo", 100, 0)
+    echo = context.serviceOf(SimpleEchoActor(), "echo", 5000, 0)
   }
 
   def receive = {

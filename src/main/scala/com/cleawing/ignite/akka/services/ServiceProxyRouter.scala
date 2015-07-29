@@ -7,6 +7,10 @@ import com.cleawing.ignite.akka.Ignition
 class ServiceProxyRouter extends Actor with Ignition {
   import ServiceProxyRouter._
 
+  override def preStart(): Unit = {
+    println(buildRemotePathString(self.path))
+  }
+
   private var router = Router(RoundRobinRoutingLogic())
 
   def receive = {

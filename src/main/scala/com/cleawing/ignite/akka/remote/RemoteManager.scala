@@ -39,20 +39,27 @@ class RemoteManager extends Actor with Ignition {
     }
 
     remoteCache.put(grid.localNodeId, hostPort)
+    context.parent ! Started
   }
 
   def receive = Actor.emptyBehavior
 
   override def postStop(): Unit = {
-    if (grid.state() == IgniteState.STARTED)
+    if (grid.state() == IgniteState.STARTED && ! isClientAlone)
       remoteCache.remove(grid.localNodeId)
+  }
+
+  private def isClientAlone : Boolean = {
+    grid.cluster().localNode().isClient && grid.cluster().nodes().size() == 1
   }
 }
 
 object RemoteManager {
+  case object Started
+
   def props() : Props  = Props[RemoteManager]
   val remoteCacheCfg = new CacheConfiguration[UUID, HostPort]()
-    .setName("akka_remote")
+    .setName("akka_cluster_members")
     .setCacheMode(CacheMode.REPLICATED)
     .setRebalanceMode(CacheRebalanceMode.SYNC)
 }

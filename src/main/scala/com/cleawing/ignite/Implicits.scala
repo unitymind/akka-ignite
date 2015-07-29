@@ -15,28 +15,6 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 
 
 object Implicits {
-  final implicit class ActorSystemOps(val system: ActorSystem) {
-    val grid = IgniteExtension(system)
-    private def remoteServices() = grid.Services(grid.cluster().forRemotes()).withAsync()
-    private def localServices() = grid.Services(grid.cluster().forLocal()).withAsync()
-
-//    def serviceOf(props: Props, name: String, totalCnt: Int, maxPerNodeCnt: Int) : ActorRef = {
-//      val ref = system.actorOf(ProxyServiceActor(), name)
-//      val serviceName = s"${ref.path.toSerializationFormat.replace(system.toString, "")}"
-//      remoteServices()
-//        .deployMultiple(serviceName, ActorService(props.clazz, props.args:_*), totalCnt, maxPerNodeCnt)
-//
-//      localServices()
-//        .deployClusterSingleton(s"$serviceName-${grid.cluster().localNode().id}", ActorServiceCollector(ref.path.toSerializationFormat))
-//
-//      ref
-//    }
-//
-//    def serviceStop(name: String) : Unit = {
-//      remoteServices().cancel(name)
-//    }
-  }
-
   final implicit class ConfigOps(val config: Config) extends AnyVal {
     def getCacheMemoryMode(path: String) : CacheMemoryMode = config.getString(path) match {
       case "ONHEAP_TIERED" => CacheMemoryMode.ONHEAP_TIERED

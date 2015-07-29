@@ -6,6 +6,8 @@ import akka.actor._
 import com.cleawing.ignite.akka.remote.{Utils, RemoteManager}
 import com.cleawing.ignite.{Implicits, IgniteAdapter}
 import com.typesafe.config.Config
+import org.apache.ignite.cache.CacheMode
+import com.cleawing.ignite.akka.services.DeploymentActorService.GlobalDescriptor
 import org.apache.ignite.{Ignite, IgniteCheckedException}
 import org.apache.ignite.configuration.IgniteConfiguration
 import org.apache.ignite.internal.IgnitionEx
@@ -23,7 +25,7 @@ object IgniteExtension
 
   override def createExtension(system: ExtendedActorSystem) = {
     val extension = IgniteExtensionImpl(system.settings.config.getConfig("akka.ignite"), system.name)
-    system.systemActorOf(IgniteGuardian(), "ignite")
+    system.systemActorOf(IgniteGuardian.props(), "ignite")
     system.registerOnTermination {
       extension.stop(cancel = true)
     }
@@ -94,8 +96,9 @@ private object IgniteExtensionImpl {
       override def onLifecycleEvent(evt: LifecycleEventType): Unit = {
         evt match {
           case LifecycleEventType.BEFORE_NODE_STOP =>
-            ignite.cache[UUID, Utils.HostPort](RemoteManager.remoteCacheCfg.getName)
-              .remove(ignite.cluster().localNode().id)
+            if (!(ignite.cluster().localNode().isClient && ignite.cluster().nodes().size() == 1))
+              ignite.cache[UUID, Utils.HostPort](RemoteManager.remoteCacheCfg.getName)
+                .remove(ignite.cluster().localNode().id)
           case _ =>
         }
       }

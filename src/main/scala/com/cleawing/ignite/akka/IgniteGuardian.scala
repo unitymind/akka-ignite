@@ -1,18 +1,23 @@
 package com.cleawing.ignite.akka
 
-import akka.actor.{Props, Actor}
+import akka.actor.{ActorRef, Props, Actor}
 import com.cleawing.ignite.akka.remote.RemoteManager
 import com.cleawing.ignite.akka.services.ServicesGuardian
 
 class IgniteGuardian extends Actor {
+  private var remoteManager : ActorRef = _
+
   override def preStart(): Unit = {
-    context.actorOf(RemoteManager.props(), "remote")
-    context.actorOf(ServicesGuardian(), "services")
+    remoteManager = context.actorOf(RemoteManager.props(), "remote")
   }
 
-  def receive = Actor.emptyBehavior
+  def receive = {
+    case RemoteManager.Started if sender() == remoteManager =>
+      context.actorOf(ServicesGuardian.props(), "services")
+      context.become(Actor.emptyBehavior)
+  }
 }
 
 object IgniteGuardian {
-  def apply() = Props[IgniteGuardian]
+  def props() = Props[IgniteGuardian]
 }
